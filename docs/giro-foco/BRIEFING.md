@@ -76,6 +76,10 @@ Arquivos: `docs/giro-foco/codigo-atual/Codigo-apps-script.gs` (Apps Script) e `a
 - **Planilha nova de teste (19/11):** "Giro foco oficial nuvem", ID `1Ct7gS41xwf8fKFGaOXciSRNCtGal3IrBXwYuGKHFfZQ`,
   fuso America/Belem, abas criadas e formatadas pelo Claude (Clientes vazia). Próximo: o usuário cola o Apps Script,
   cria a implantação e envia a URL `/exec`; então ligar `URL_NUVEM` no site e testar ao vivo.
+- **Embalagens (pedido do usuário, 19/11):** aba `Embalagens` (nome, ml, unidades, ativa; padrão 330ml c/12, 330ml c/24,
+  600ml c/12, 600ml c/24). HL do pacote = ml × unidades ÷ 100.000. Venda guarda `vendaEmbalagem` + `vendaHL` (colunas
+  novas no FIM de Clientes) e "confirmar amarelos" soma o `vendaHL` exato. No site: "Calcular em" (falta em pacotes da
+  embalagem escolhida, lembrado no aparelho) e escolha da embalagem ao informar a venda; admin edita a lista.
 - O Apps Script aumenta as abas quando precisa (`garantirTamanho`): aba nova do Google nasce com 1000×26.
 
 ### 2.2 Formato da base colada pelo admin (planilha da empresa, copiada do Excel)

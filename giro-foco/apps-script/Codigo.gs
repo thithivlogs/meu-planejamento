@@ -18,7 +18,7 @@
 
 // ============================== CONFIGURAÇÕES ==============================
 
-var VERSAO_API = '2.0.0';
+var VERSAO_API = '2.1.0';
 var CHAVE_ESTADO_ANTIGO = 'GIRO_CDA_CLOUD_STATE';
 var DIAS_VALIDADE_ACESSO = 30;          // por quantos dias o aparelho fica conectado
 var MAX_TENTATIVAS_ERRADAS = 8;         // tentativas de senha errada antes de bloquear por 10 minutos
@@ -32,7 +32,8 @@ var ABA = {
   senhas: 'Senhas',
   historico: 'Historico',
   alertas: 'Alertas',
-  log: 'Log'
+  log: 'Log',
+  embalagens: 'Embalagens'
 };
 
 // Campos de cada cliente e o tipo de cada um.
@@ -48,7 +49,9 @@ var CAMPOS_CLIENTE = [
   ['vendaAutor', 'texto'], ['vendaData', 'texto'], ['saidaConfirmada', 'booleano'],
   ['mes', 'texto'], ['regional', 'texto'], ['idCentro', 'texto'], ['idOrg', 'texto'], ['operacao', 'texto'],
   ['unir', 'texto'],
-  ['atualizadoEm', 'texto'], ['atualizadoPor', 'texto']
+  ['atualizadoEm', 'texto'], ['atualizadoPor', 'texto'],
+  // Novos no fim (não mudar a posição das colunas acima): embalagem vendida e o volume exato em HL.
+  ['vendaEmbalagem', 'texto'], ['vendaHL', 'numero']
 ];
 
 // Campos que vêm da planilha da empresa (importação). Os demais são lançamentos feitos no site.
@@ -65,6 +68,16 @@ var CAMPOS_HISTORICO = [
 var CAMPOS_ALERTA = [
   ['id', 'texto'], ['type', 'texto'], ['title', 'texto'], ['desc', 'texto'], ['time', 'texto'],
   ['clientId', 'texto'], ['setorId', 'texto'], ['supId', 'texto'], ['criadoEm', 'texto']
+];
+
+// Embalagens que o vendedor escolhe ao calcular a falta e ao informar a venda.
+// HL por pacote = ml × unidades ÷ 100.000 (1 HL = 100 litros). Ex.: 600 ml × 12 = 7,2 L = 0,072 HL.
+var CAMPOS_EMBALAGEM = [['nome', 'texto'], ['ml', 'numero'], ['unidades', 'numero'], ['ativa', 'booleano']];
+var EMBALAGENS_PADRAO = [
+  { nome: '330ml c/12', ml: 330, unidades: 12, ativa: true },
+  { nome: '330ml c/24', ml: 330, unidades: 24, ativa: true },
+  { nome: '600ml c/12', ml: 600, unidades: 12, ativa: true },
+  { nome: '600ml c/24', ml: 600, unidades: 24, ativa: true }
 ];
 
 var CAMPOS_SENHA = [['tipo', 'texto'], ['codigo', 'texto'], ['senha', 'texto'], ['obs', 'texto']];
@@ -139,6 +152,7 @@ var ACOES = {
   excluirCliente: { admin: true, escreve: true, fn: acaoExcluirCliente },
   salvarConfig: { admin: true, escreve: true, fn: acaoSalvarConfig },
   listarAcessos: { admin: true, fn: acaoListarAcessos },
+  salvarEmbalagens: { admin: true, escreve: true, fn: acaoSalvarEmbalagens },
   definirSenha: { admin: true, escreve: true, fn: acaoDefinirSenha },
   novoCiclo: { admin: true, escreve: true, fn: acaoNovoCiclo }
 };
@@ -281,6 +295,7 @@ function acaoDados(corpo, sessao) {
   var publica = {};
   CONFIG_PUBLICA.forEach(function (k) { publica[k] = config[k]; });
   publica.boxFactorHL = Number(publica.boxFactorHL) || 0.0396;
+  publica.embalagens = lerEmbalagens();
   return {
     ok: true,
     perfil: sessao.perfil,
@@ -297,6 +312,8 @@ function acaoDados(corpo, sessao) {
 
 function acaoInformarVenda(corpo, sessao) {
   var caixas = Math.max(1, parseInt(corpo.caixas, 10) || 1);
+  var emb = acharEmbalagem(corpo.embalagem);
+  var hl = arredondar(caixas * emb.hl, 4);
   var previsao = String(corpo.previsao || '').slice(0, 60);
   var obs = String(corpo.obs || '').trim().slice(0, 500);
   var autor = rotulo(sessao.perfil, sessao.codigo);
@@ -304,18 +321,20 @@ function acaoInformarVenda(corpo, sessao) {
   var c = atualizarCliente(corpo.idCliente, sessao, function (c) {
     c.vendaInformada = true;
     c.vendaCaixas = caixas;
+    c.vendaEmbalagem = emb.nome;
+    c.vendaHL = hl;
     c.vendaPrevisao = previsao;
-    c.vendaObs = obs || ('Venda informada de ' + caixas + ' caixas aguardando faturamento.');
+    c.vendaObs = obs || ('Venda de ' + caixas + ' × ' + emb.nome + ' aguardando faturamento.');
     c.vendaAutor = autor;
     c.vendaData = agora;
   });
   adicionarAlerta({
     type: 'AMARELO',
-    title: '🟡 Venda Informada (+' + caixas + ' cx) — ' + c.cliente,
+    title: '🟡 Venda Informada (' + caixas + ' × ' + emb.nome + ') — ' + c.cliente,
     desc: autor + ' marcou venda no cliente ' + c.idCliente + ' (' + c.statusGiro + '). Previsão: ' + previsao + '.',
     clientId: c.idCliente, setorId: c.setorId, supId: c.supId
   });
-  registrarLog(autor, 'INFORMAR_VENDA', c.idCliente, caixas + ' cx; previsão ' + previsao + '; ' + obs);
+  registrarLog(autor, 'INFORMAR_VENDA', c.idCliente, caixas + ' × ' + emb.nome + ' (' + hl + ' HL); previsão ' + previsao + '; ' + obs);
   return { ok: true, cliente: c };
 }
 
@@ -323,6 +342,8 @@ function acaoLimparAmarelo(corpo, sessao) {
   var c = atualizarCliente(corpo.idCliente, sessao, function (c) {
     c.vendaInformada = false;
     c.vendaCaixas = 0;
+    c.vendaEmbalagem = '';
+    c.vendaHL = 0;
     c.vendaObs = '';
     c.vendaPrevisao = '';
   });
@@ -358,7 +379,9 @@ function acaoConfirmarAmarelos(corpo, sessao) {
     if (!c.vendaInformada) return;
     c.prevStatus = c.statusGiro;
     c.prevHL = c.realHL;
-    c.realHL = arredondar(c.realHL + (c.vendaCaixas || 0) * fator, 2);
+    // Usa o volume exato da embalagem vendida; vendas antigas (sem embalagem) usam o fator padrão.
+    var somar = c.vendaHL > 0 ? c.vendaHL : (c.vendaCaixas || 0) * fator;
+    c.realHL = arredondar(c.realHL + somar, 2);
     c.retornoPct = c.metaHL > 0 ? Math.round((c.realHL / c.metaHL) * 100) : 100;
     if (c.realHL >= c.metaHL) {
       c.statusGiro = 'GIRO EFICIENTE';
@@ -423,6 +446,8 @@ function acaoImportarBase(corpo) {
       c.prevHL = r.realHL;
       c.vendaInformada = false;
       c.vendaCaixas = 0;
+      c.vendaHL = 0;
+      c.vendaEmbalagem = '';
       c.saidaConfirmada = false;
     }
     c.atualizadoEm = new Date().toISOString();
@@ -557,7 +582,7 @@ function acaoListarAcessos() {
   ['sellerPassMode', 'sellerSuffix', 'sellerKeyword', 'supPassMode', 'supSuffix', 'supKeyword', 'calcMetricMode', 'boxFactorHL'].forEach(function (k) {
     publica[k] = config[k];
   });
-  return { ok: true, acessos: lista, config: publica };
+  return { ok: true, acessos: lista, config: publica, embalagens: lerTabela(ABA.embalagens, CAMPOS_EMBALAGEM) };
 }
 
 /** Define (ou remove, com senha vazia) a senha individual de um setor ou mesa. */
@@ -572,6 +597,49 @@ function acaoDefinirSenha(corpo) {
   if (senha) senhas.push({ tipo: tipo, codigo: codigo, senha: senha, obs: 'Definida em ' + new Date().toISOString() });
   gravarTabela(ABA.senhas, CAMPOS_SENHA, senhas);
   registrarLog('Administrador', senha ? 'DEFINIR_SENHA' : 'REMOVER_SENHA_INDIVIDUAL', '', rotulo(tipo, codigo));
+  return { ok: true };
+}
+
+// ============================== EMBALAGENS ==============================
+
+/** Embalagens ativas, com o HL de cada pacote. Se a aba estiver vazia, cria com a lista padrão. */
+function lerEmbalagens() {
+  var lista = lerTabela(ABA.embalagens, CAMPOS_EMBALAGEM);
+  if (lista.length === 0) {
+    gravarTabela(ABA.embalagens, CAMPOS_EMBALAGEM, EMBALAGENS_PADRAO);
+    lista = copiar(EMBALAGENS_PADRAO);
+  }
+  return lista.filter(function (e) { return e.ativa && e.ml > 0 && e.unidades > 0; }).map(function (e) {
+    return { nome: e.nome, ml: e.ml, unidades: e.unidades, hl: arredondar(e.ml * e.unidades / 100000, 6) };
+  });
+}
+
+function acharEmbalagem(nome) {
+  var lista = lerEmbalagens();
+  if (!nome) {
+    // Pedido sem embalagem (site antigo): usa o fator padrão da Config.
+    return { nome: 'caixa padrão', hl: Number(lerConfig().boxFactorHL) || 0.0396 };
+  }
+  var e = lista.filter(function (x) { return x.nome === String(nome); })[0];
+  if (!e) throw erroUsuario('Embalagem "' + nome + '" não existe mais. Atualize a página.');
+  return e;
+}
+
+function acaoSalvarEmbalagens(corpo) {
+  var lista = Array.isArray(corpo.embalagens) ? corpo.embalagens : [];
+  var vistas = {};
+  var limpas = lista.map(function (e) {
+    var o = { nome: String(e.nome || '').trim().slice(0, 40), ml: converter(e.ml, 'numero'),
+      unidades: Math.round(converter(e.unidades, 'numero')), ativa: e.ativa !== false };
+    if (!o.nome) throw erroUsuario('Toda embalagem precisa de um nome.');
+    if (!(o.ml > 0) || !(o.unidades > 0)) throw erroUsuario('Confira ml e unidades de "' + o.nome + '".');
+    if (vistas[o.nome]) throw erroUsuario('Nome repetido: "' + o.nome + '".');
+    vistas[o.nome] = true;
+    return o;
+  });
+  if (!limpas.some(function (e) { return e.ativa; })) throw erroUsuario('Deixe pelo menos uma embalagem ativa.');
+  gravarTabela(ABA.embalagens, CAMPOS_EMBALAGEM, limpas);
+  registrarLog('Administrador', 'SALVAR_EMBALAGENS', '', limpas.map(function (e) { return e.nome; }).join(', '));
   return { ok: true };
 }
 
@@ -713,9 +781,18 @@ function obterAba(nome, campos) {
     garantirTamanho(aba, 2, campos.length);
     aba.getRange(1, 1, 1, campos.length).setValues([campos.map(function (c) { return c[0]; })]).setFontWeight('bold');
     aba.setFrozenRows(1);
+  } else if (!CABECALHO_CONFERIDO[nome]) {
+    // Planilha criada por uma versão anterior: acrescenta as colunas novas no fim do cabeçalho.
+    garantirTamanho(aba, 2, campos.length);
+    var atual = aba.getRange(1, 1, 1, campos.length).getValues()[0];
+    if (campos.some(function (c, i) { return String(atual[i]) !== c[0]; })) {
+      aba.getRange(1, 1, 1, campos.length).setValues([campos.map(function (c) { return c[0]; })]).setFontWeight('bold');
+    }
   }
+  CABECALHO_CONFERIDO[nome] = true;
   return aba;
 }
+var CABECALHO_CONFERIDO = {};
 
 function lerTabela(nome, campos) {
   var aba = obterAba(nome, campos);

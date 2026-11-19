@@ -246,3 +246,57 @@ test('abas crescem sozinhas: Clientes com 36 colunas e Log com mais de 1000 linh
   for (let i = 0; i < 1100; i++) amb.ctx.registrarLog('teste', 'CARGA', '', String(i));
   assert.ok(amb.ctx.lerTabela('Log', amb.ctx.CAMPOS_LOG).length > 1100);
 });
+
+test('embalagens: lista padrão, venda em 600ml c/24 grava o HL exato e a confirmação soma esse HL', () => {
+  const amb = ambienteMigrado();
+  const vend = entrar(amb, 'VENDEDOR', '15623', '15623');
+  const d = amb.post({ acao: 'dados', token: vend });
+  assert.deepEqual(d.config.embalagens.map(e => e.nome), ['330ml c/12', '330ml c/24', '600ml c/12', '600ml c/24']);
+  assert.deepEqual(d.config.embalagens.map(e => e.hl), [0.0396, 0.0792, 0.072, 0.144]);
+  const c = d.clientes.find(x => x.statusGiro !== 'GIRO EFICIENTE');
+  const r = amb.post({ acao: 'informarVenda', token: vend, idCliente: c.idCliente, caixas: 3, embalagem: '600ml c/24', previsao: 'Hoje' });
+  assert.equal(r.ok, true, r.erro);
+  assert.equal(r.cliente.vendaEmbalagem, '600ml c/24');
+  assert.equal(r.cliente.vendaHL, 0.432);                 // 3 × 0,144
+  assert.equal(r.cliente.vendaCaixas, 3);
+  const admin = entrar(amb, 'ADMIN', '', SENHA_ADMIN_TESTE);
+  amb.post({ acao: 'confirmarAmarelos', token: admin });
+  const depois = amb.ctx.lerClientes().find(x => x.idCliente === c.idCliente);
+  assert.equal(depois.realHL, Math.round((c.realHL + 0.432) * 100) / 100);
+  // Embalagem que não existe é recusada
+  const ruim = amb.post({ acao: 'informarVenda', token: vend, idCliente: c.idCliente, caixas: 1, embalagem: '2L c/6' });
+  assert.equal(ruim.ok, false);
+  assert.match(ruim.erro, /não existe/);
+});
+
+test('admin edita as embalagens; inativas somem da lista do vendedor', () => {
+  const amb = ambienteMigrado();
+  const admin = entrar(amb, 'ADMIN', '', SENHA_ADMIN_TESTE);
+  const r = amb.post({ acao: 'salvarEmbalagens', token: admin, embalagens: [
+    { nome: '330ml c/12', ml: 330, unidades: 12, ativa: true },
+    { nome: '600ml c/24', ml: 600, unidades: 24, ativa: false },
+    { nome: 'Lata 350ml c/12', ml: '350', unidades: '12', ativa: true }] });
+  assert.equal(r.ok, true, r.erro);
+  const vend = entrar(amb, 'VENDEDOR', '15623', '15623');
+  const lista = amb.post({ acao: 'dados', token: vend }).config.embalagens;
+  assert.deepEqual(lista.map(e => e.nome), ['330ml c/12', 'Lata 350ml c/12']);
+  assert.equal(lista[1].hl, 0.042);
+  assert.equal(amb.post({ acao: 'salvarEmbalagens', token: vend, embalagens: [] }).ok, false);
+  assert.equal(amb.post({ acao: 'salvarEmbalagens', token: admin, embalagens: [{ nome: 'X', ml: 0, unidades: 12 }] }).ok, false);
+});
+
+test('planilha de versão anterior (36 colunas) ganha as colunas novas sem perder dados', () => {
+  const amb = ambienteMigrado();
+  const aba = amb.abas.Clientes;
+  const antes = amb.ctx.lerClientes().length;
+  // Simula a planilha antiga: cabeçalho só até "atualizadoPor"
+  aba.getRange(1, 37, 1, 2).setValues([['', '']]);
+  amb.ctx.CABECALHO_CONFERIDO = {};
+  vm_reset(amb);
+  const vend = entrar(amb, 'VENDEDOR', '15623', '15623');
+  const c = amb.post({ acao: 'dados', token: vend }).clientes[0];
+  assert.equal(amb.post({ acao: 'informarVenda', token: vend, idCliente: c.idCliente, caixas: 2, embalagem: '330ml c/24' }).ok, true);
+  assert.deepEqual(aba.getRange(1, 37, 1, 2).getValues()[0], ['vendaEmbalagem', 'vendaHL']);
+  assert.equal(amb.ctx.lerClientes().length, antes);
+});
+function vm_reset(amb) { for (const k of Object.keys(amb.ctx.CABECALHO_CONFERIDO)) delete amb.ctx.CABECALHO_CONFERIDO[k]; }

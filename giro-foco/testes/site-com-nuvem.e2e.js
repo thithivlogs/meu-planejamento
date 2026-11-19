@@ -47,9 +47,10 @@ async function entrar(p, perfil, codigo, senha) {
   await p.waitForSelector('.cli', { timeout: 10000 });
 }
 
-async function informarPrimeiraVenda(p, caixas) {
+async function informarPrimeiraVenda(p, caixas, embalagem) {
   const id = await p.getAttribute('[data-vender]', 'data-vender');
   await p.click(`[data-vender="${id}"]`);
+  if (embalagem) await p.click(`[data-emb-venda="${embalagem}"]`);
   await p.fill('#vendaCaixas', String(caixas));
   await p.click('#vendaConfirmar');
   return id;
@@ -70,13 +71,24 @@ async function informarPrimeiraVenda(p, caixas) {
     ok(`vendedor A vê só a carteira dele (${nA} clientes sem expurgos)`);
 
     const idB = await informarPrimeiraVenda(B.pagina, 3);
-    const idA = await informarPrimeiraVenda(A.pagina, 7);
+    const idA = await informarPrimeiraVenda(A.pagina, 7, '600ml c/24');
     await A.pagina.waitForFunction(() => document.querySelector('#pilulaSinc').dataset.estado === 'ok');
     await B.pagina.waitForFunction(() => document.querySelector('#pilulaSinc').dataset.estado === 'ok');
     let planilha = amb.ctx.lerClientes();
     assert.equal(planilha.find(c => c.idCliente === idA).vendaCaixas, 7);
     assert.equal(planilha.find(c => c.idCliente === idB).vendaCaixas, 3);
     ok('as duas vendas chegaram na planilha, uma não apagou a outra');
+    const vA = planilha.find(c => c.idCliente === idA), vB = planilha.find(c => c.idCliente === idB);
+    assert.equal(vA.vendaEmbalagem, '600ml c/24'); assert.equal(vA.vendaHL, 1.008);   // 7 × 0,144 HL
+    assert.equal(vB.vendaEmbalagem, '330ml c/12'); assert.equal(vB.vendaHL, 0.1188);  // 3 × 0,0396 HL
+    assert.match(await A.pagina.textContent('.cli.amarelo'), /7 × 600ml c\/24/);
+    ok('vendedor escolheu 600ml c/24: a planilha guardou a embalagem e o HL exato (7 × 0,144 = 1,008 HL)');
+    // "Calcular em": a falta muda conforme a embalagem escolhida
+    const falta330 = await A.pagina.textContent('.giro3d-resumo');
+    await A.pagina.selectOption('[data-filtro="embalagem"]', '600ml c/24');
+    const falta600 = await A.pagina.textContent('.giro3d-resumo');
+    assert.match(falta330, /× 330ml c\/12/); assert.match(falta600, /× 600ml c\/24/);
+    ok('"Calcular em" troca a falta da carteira entre 330ml c/12 e 600ml c/24');
 
     // 2. Sem internet: a venda fica na fila e é enviada quando a conexão volta
     const C = await novoAparelho(navegador, 'vendedor C');

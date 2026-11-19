@@ -2,7 +2,7 @@
 
 ## Planilha de teste já preparada: "Giro foco oficial nuvem"
 
-ID `1Ct7gS41xwf8fKFGaOXciSRNCtGal3IrBXwYuGKHFfZQ`. As abas Leia-me, Clientes, Config, Senhas, Historico, Alertas e Log
+ID `1Ct7gS41xwf8fKFGaOXciSRNCtGal3IrBXwYuGKHFfZQ`. As abas Leia-me, Clientes, Embalagens, Config, Senhas, Historico, Alertas e Log
 já existem, com cabeçalhos, colunas de texto puro e o tamanho certo. A aba Clientes começa vazia: a base entra
 quando o admin cola a planilha da empresa no site. **Não precisa rodar a migração nesta planilha.**
 
@@ -64,7 +64,8 @@ A aba antiga `Nuvem_Giro` e o estado antigo não são apagados — continuam com
 
 | Aba | O que guarda |
 |---|---|
-| `Clientes` | Uma linha por cliente, com status, HL e os lançamentos (venda informada, caixas, observação, saída). |
+| `Clientes` | Uma linha por cliente, com status, HL e os lançamentos (venda informada, embalagem, quantidade, HL, observação, saída). |
+| `Embalagens` | Embalagens que o vendedor escolhe (nome, ml, unidades, ativa). HL do pacote = ml × unidades ÷ 100.000. |
 | `Config` | Regras de senha, senha de admin, fator da caixa, data da última atualização. |
 | `Senhas` | Senhas individuais (quando o admin troca a senha de um setor ou mesa). Vazia = vale a regra. |
 | `Historico` | Um ponto por dia do mês (gráfico de evolução). |

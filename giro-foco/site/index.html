@@ -330,6 +330,22 @@ dialog.folha.fechando::backdrop { opacity: 0; transition: opacity .2s; }
 .passo button:active { transform: scale(.95); }
 .passo input { text-align: center; font-size: 28px; font-weight: 750; min-height: 56px; }
 .rapidos { display: flex; gap: 8px; flex-wrap: wrap; }
+.opcoes-emb { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.opcoes-emb button {
+  min-height: 56px; border: 1.5px solid var(--linha-forte); border-radius: 12px; background: var(--superficie); text-align: left;
+  padding: 8px 12px; font-weight: 700; font-size: 16px; transition: border-color .15s, background-color .15s;
+}
+.opcoes-emb button small { display: block; font-weight: 500; color: var(--tinta-3); font-size: 12.5px; margin-top: 1px; }
+.opcoes-emb button[aria-pressed="true"] { border-color: var(--verde-600); background: var(--verde-50); color: var(--acento); box-shadow: 0 0 0 1px var(--verde-600) inset; }
+.emb-linha { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 72px 40px; gap: 6px 8px; align-items: center; }
+.emb-linha .emb-nome { grid-column: 1 / -1; font-weight: 650; }
+.emb-linha label.ativa { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--tinta-2); }
+@media (min-width: 900px) { .emb-linha { grid-template-columns: minmax(0, 2fr) 90px 80px 90px 40px; } .emb-linha .emb-nome { grid-column: auto; } }
+.emb-linha { padding: 8px 0; border-bottom: 1px solid var(--linha); }
+.emb-linha .entrada { min-height: 44px; font-size: 15px; padding: 0 10px; width: 100%; }
+.emb-linha small { grid-column: 1 / -1; color: var(--tinta-3); font-size: 12.5px; margin-top: -2px; }
+.emb-linha input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--verde-600); justify-self: center; }
+.emb-linha .btn-txt { min-height: 40px; padding: 0; justify-content: center; }
 .previa { background: var(--superficie-2); border: 1px solid var(--linha); border-radius: 12px; padding: 12px; font-size: 15px; color: var(--tinta-2); display: grid; gap: 8px; }
 .previa b { color: var(--tinta); }
 .previa .bate { color: var(--efic-texto); font-weight: 700; display: flex; gap: 6px; align-items: center; }
@@ -520,11 +536,15 @@ body.apresentacao .pilha { height: 18px; }
       <p class="sub" id="vendaSub"></p>
     </div>
     <div class="campo">
-      <span>Quantas caixas?</span>
+      <span>Embalagem vendida</span>
+      <div class="opcoes-emb" id="vendaEmbalagens" role="group" aria-label="Embalagem vendida"></div>
+    </div>
+    <div class="campo">
+      <span>Quantos pacotes?</span>
       <div class="passo">
-        <button type="button" data-passo="-1" aria-label="Menos uma caixa">−</button>
-        <input class="entrada" id="vendaCaixas" inputmode="numeric" value="1" aria-label="Caixas">
-        <button type="button" data-passo="1" aria-label="Mais uma caixa">+</button>
+        <button type="button" data-passo="-1" aria-label="Menos um pacote">−</button>
+        <input class="entrada" id="vendaCaixas" inputmode="numeric" value="1" aria-label="Quantidade de pacotes">
+        <button type="button" data-passo="1" aria-label="Mais um pacote">+</button>
       </div>
       <div class="rapidos" id="vendaRapidos"></div>
     </div>
@@ -611,7 +631,7 @@ const estado = {
   dados: null,                             // { config, clientes, historico, alertas, dataVersion }
   pendentes: ler('giro_pendentes', []),    // lançamentos ainda não confirmados pela nuvem
   aba: 'carteira',
-  ui: { status: null, expurgos: 'fora', busca: '', ordem: 'prioridade', setor: '', mesa: '', pagina: 1, ordemEquipe: 'zero' },
+  ui: { embalagem: ler('giro_embalagem', ''), status: null, expurgos: 'fora', busca: '', ordem: 'prioridade', setor: '', mesa: '', pagina: 1, ordemEquipe: 'zero' },
   ultimaAtualizacao: null,
   carregando: false,
   animarBarra: true,
@@ -730,10 +750,12 @@ function aplicarLocal(acao, dados) {
   const c = estado.dados.clientes.find(x => x.idCliente === dados.idCliente);
   if (!c) return;
   if (acao === 'informarVenda') {
-    Object.assign(c, { vendaInformada: true, vendaCaixas: dados.caixas, vendaPrevisao: dados.previsao, vendaObs: dados.obs,
+    const emb = embalagens().find(e => e.nome === dados.embalagem) || embalagens()[0];
+    Object.assign(c, { vendaInformada: true, vendaCaixas: dados.caixas, vendaEmbalagem: emb.nome, vendaHL: +(dados.caixas * emb.hl).toFixed(4),
+      vendaPrevisao: dados.previsao, vendaObs: dados.obs,
       vendaAutor: rotuloSessao(), vendaData: new Date().toISOString() });
   } else if (acao === 'limparAmarelo') {
-    Object.assign(c, { vendaInformada: false, vendaCaixas: 0, vendaObs: '', vendaPrevisao: '' });
+    Object.assign(c, { vendaInformada: false, vendaCaixas: 0, vendaEmbalagem: '', vendaHL: 0, vendaObs: '', vendaPrevisao: '' });
   }
 }
 function reaplicarPendentes() { estado.pendentes.forEach(p => aplicarLocal(p.acao, p.dados)); }
@@ -750,13 +772,22 @@ function rotuloSessao() {
   return s.perfil === 'ADMIN' ? 'Administrador' : (s.perfil === 'VENDEDOR' ? 'Setor ' : 'Mesa ') + s.codigo;
 }
 function fator() { return Number(estado.dados && estado.dados.config.boxFactorHL) || 0.0396; }
+
+/* Embalagens: o HL de cada pacote vem da nuvem (aba Embalagens). Ex.: 600ml c/12 = 0,072 HL. */
+function embalagens() {
+  const l = estado.dados && estado.dados.config.embalagens;
+  return l && l.length ? l : [{ nome: 'caixa padrão', ml: 0, unidades: 0, hl: fator() }];
+}
+function embAtual() { const l = embalagens(); return l.find(e => e.nome === estado.ui.embalagem) || l[0]; }
+function hlVenda(c) { return Number(c.vendaHL) > 0 ? Number(c.vendaHL) : (Number(c.vendaCaixas) || 0) * fator(); }
+function rotuloVenda(c) { return c.vendaCaixas + ' × ' + (c.vendaEmbalagem || 'cx'); }
 function porAtivos() { return !estado.dados || estado.dados.config.calcMetricMode !== 'CLIENTES'; }
 function peso(c) { return porAtivos() ? Math.max(1, parseInt(c.ativos, 10) || 1) : 1; }
 
-function metricasCliente(c) {
+function metricasCliente(c, emb = embAtual()) {
   const real = Number(c.realHL) || 0, meta = Number(c.metaHL) || 0;
   const faltaHL = Math.max(0, meta - real);
-  const faltaCx = faltaHL > 0 ? Math.ceil(faltaHL / fator()) : 0;
+  const faltaCx = faltaHL > 0 ? Math.ceil(faltaHL / emb.hl - 1e-9) : 0;   // pacotes da embalagem escolhida
   return { real, meta, faltaHL, faltaCx, pctMeta: meta > 0 ? Math.min(100, (real / meta) * 100) : 100 };
 }
 
@@ -974,7 +1005,7 @@ function barraGiro(lista, { titulo = 'Giro da carteira', interativa = true } = {
     <div class="giro3d-palco"><div class="giro3d-barra ${estado.animarBarra ? 'entrada-anim' : ''}" id="barra3d">${segs}</div></div>
     <div class="giro3d-legenda">${leg}</div>
     <div class="giro3d-resumo">
-      <span>Faltam <b>${nf(r.faltaCx)} cx</b> (${nf(r.faltaHL, 2)} HL) para a meta</span>
+      <span>Faltam <b>${nf(r.faltaCx)} × ${esc(embAtual().nome)}</b> (${nf(r.faltaHL, 2)} HL) para a meta</span>
       <span><b>${r.amarelos}</b> com venda informada</span>
       <span><b>${r.ativos}</b> ativos em ${r.clientes} clientes</span>
     </div>
@@ -1005,7 +1036,7 @@ function filtrarBusca(lista) {
 function cartaoCliente(c) {
   const m = metricasCliente(c);
   const s = estado.sessao;
-  const extra = c.vendaInformada ? Math.min(100 - m.pctMeta, (c.vendaCaixas * fator() / (m.meta || 1)) * 100) : 0;
+  const extra = c.vendaInformada ? Math.min(100 - m.pctMeta, (hlVenda(c) / (m.meta || 1)) * 100) : 0;
   const etiquetas = [];
   if (ehExpurgado(c)) etiquetas.push('<span class="etq exp">Expurgado</span>');
   if (c.saidaConfirmada) etiquetas.push(`<span class="etq ok">${icone('check')}Saída confirmada</span>`);
@@ -1017,9 +1048,9 @@ function cartaoCliente(c) {
   const pend = estado.pendentes.some(p => p.dados.idCliente === c.idCliente);
   const quem = s.perfil === 'VENDEDOR' ? '' : ` · Setor ${esc(c.setorId)}`;
   const acao = c.vendaInformada
-    ? `<span class="aviso-amarelo">${icone('amarelo')}${c.vendaCaixas} cx informadas${c.vendaPrevisao ? ' · ' + esc(c.vendaPrevisao) : ''}${pend ? ' · enviando…' : c.vendaData ? ' · ' + esc(dataCurta(c.vendaData)) : ''}</span>
+    ? `<span class="aviso-amarelo">${icone('amarelo')}${esc(rotuloVenda(c))} (${nf(hlVenda(c), 2)} HL)${c.vendaPrevisao ? ' · ' + esc(c.vendaPrevisao) : ''}${pend ? ' · enviando…' : c.vendaData ? ' · ' + esc(dataCurta(c.vendaData)) : ''}</span>
        <button class="btn btn-txt" data-limpar="${esc(c.idCliente)}">Desfazer</button>`
-    : `<span class="contagem">${m.faltaCx > 0 ? `Faltam <b style="color:var(--tinta)">${m.faltaCx} cx</b>` : 'Meta batida'}</span>
+    : `<span class="contagem">${m.faltaCx > 0 ? `Faltam <b style="color:var(--tinta)">${m.faltaCx} × ${esc(embAtual().nome)}</b>` : 'Meta batida'}</span>
        <button class="btn btn-sec" data-vender="${esc(c.idCliente)}">${icone('caixa')}Informar venda</button>`;
   return `<article class="cli ${c.vendaInformada ? 'amarelo' : ''}">
     <div class="cli-topo">
@@ -1050,6 +1081,9 @@ function vistaCarteira() {
       <div class="linha-filtros">
         ${filtrosExpurgo()}
         ${seletoresEscopo()}
+        <label class="chip">Calcular em <select data-filtro="embalagem">
+          ${embalagens().map(e => `<option value="${esc(e.nome)}" ${embAtual().nome === e.nome ? 'selected' : ''}>${esc(e.nome)}</option>`).join('')}
+        </select></label>
         <label class="chip">Ordem <select data-filtro="ordem">
           ${[['prioridade', 'Prioridade'], ['perto', 'Mais perto da meta'], ['falta', 'Maior falta'], ['nome', 'Nome']].map(([v, n]) =>
             `<option value="${v}" ${u.ordem === v ? 'selected' : ''}>${n}</option>`).join('')}
@@ -1072,12 +1106,12 @@ function recorteAmarelos() {
 }
 function vistaAmarelos() {
   const lista = recorteAmarelos().sort((a, b) => String(b.vendaData).localeCompare(String(a.vendaData)));
-  const cx = lista.reduce((a, c) => a + (Number(c.vendaCaixas) || 0), 0);
+  const hl = lista.reduce((a, c) => a + hlVenda(c), 0);
   const admin = estado.sessao.perfil === 'ADMIN';
   const alertas = (estado.dados.alertas || []).slice(0, 12);
   return `<div class="vista">
     <div class="cab-vista"><div><h2>Vendas informadas</h2>
-      <p>${lista.length} cliente${lista.length === 1 ? '' : 's'} aguardando faturamento · ${nf(cx)} caixas · ${nf(cx * fator(), 2)} HL</p></div>
+      <p>${lista.length} cliente${lista.length === 1 ? '' : 's'} aguardando faturamento · ${nf(hl, 2)} HL informados</p></div>
       ${admin && lista.length ? `<button class="btn btn-pri" data-confirmar-amarelos>${icone('check')}Confirmar saída de todos</button>` : ''}
     </div>
     ${estado.sessao.perfil !== 'VENDEDOR' ? `<div class="linha-filtros">${seletoresEscopo()}</div>` : ''}
@@ -1189,7 +1223,7 @@ function listaRanking(grupos, tipo) {
   return `<div class="ranking">${grupos.map((g, i) => `
     <button class="rank-item" data-ver-${tipo}="${esc(g.id)}">
       <span class="rank-pos">${i + 1}</span>
-      <span class="rank-nome"><b>${esc(g.id)} · ${esc(g.nome)}</b><span>${g.r.clientes} clientes · ${g.r.amarelos} com venda informada · faltam ${nf(g.r.faltaCx)} cx</span></span>
+      <span class="rank-nome"><b>${esc(g.id)} · ${esc(g.nome)}</b><span>${g.r.clientes} clientes · ${g.r.amarelos} com venda informada · faltam ${nf(g.r.faltaHL, 1)} HL</span></span>
       <span class="rank-val">${ord === 'zero' ? nf(z(g), 1) + '%' : `<span style="color:var(--efic-texto)">${nf(e(g), 1)}%</span>`}<small>${ord === 'zero' ? 'giro zero' : 'eficiente'}</small></span>
       <span class="pilha">${STATUS.map(s => `<i style="width:${pct(g.r[s].peso, g.r.total)}%;--c:${COR_STATUS[s]}"></i>`).join('')}</span>
     </button>`).join('')}</div>`;
@@ -1253,9 +1287,14 @@ function vistaAdmin() {
               <button type="button" data-calc="ATIVOS" aria-pressed="${cfg.calcMetricMode !== 'CLIENTES'}">Ativos em campo</button>
               <button type="button" data-calc="CLIENTES" aria-pressed="${cfg.calcMetricMode === 'CLIENTES'}">Clientes</button>
             </div></div>
-          <label class="campo"><span>HL por caixa</span><input class="entrada" id="fatorCaixa" inputmode="decimal" value="${nf(fator(), 4)}"></label>
+          <label class="campo"><span>HL da caixa padrão (só para vendas antigas, sem embalagem)</span><input class="entrada" id="fatorCaixa" inputmode="decimal" value="${nf(fator(), 4)}"></label>
           <button class="btn btn-sec" data-salvar-calculo>Salvar cálculo</button>
         </div>
+      </section>
+      <section class="painel">
+        <h3>Embalagens</h3>
+        <p class="nota">O que o vendedor escolhe ao ver quanto falta e ao informar a venda. HL do pacote = ml × unidades ÷ 100.000.</p>
+        <div id="painelEmb">${acessosCache ? tabelaEmbalagens() : '<div class="esqueleto" style="height:120px"></div>'}</div>
       </section>
       <section class="painel">
         <h3>Virada do mês</h3>
@@ -1269,6 +1308,32 @@ function vistaAdmin() {
       <div id="tabelaAcessos">${acessosCache ? tabelaAcessos() : '<div class="esqueleto" style="height:160px"></div>'}</div>
     </section>
   </div>`;
+}
+let embEdit = null;   // lista em edição na tela de admin
+function tabelaEmbalagens() {
+  if (!embEdit) embEdit = (acessosCache.embalagens && acessosCache.embalagens.length ? acessosCache.embalagens : embalagens()).map(e => ({ nome: e.nome, ml: e.ml, unidades: e.unidades, ativa: e.ativa !== false }));
+  return `<div class="pilha-form"><div>
+    ${embEdit.map((e, i) => `<div class="emb-linha" data-emb-linha="${i}">
+      <input class="entrada emb-nome" data-emb-campo="nome" value="${esc(e.nome)}" aria-label="Nome da embalagem" placeholder="Nome, ex.: 600ml c/12">
+      <input class="entrada" data-emb-campo="ml" inputmode="numeric" value="${esc(e.ml)}" aria-label="Mililitros por unidade" placeholder="ml">
+      <input class="entrada" data-emb-campo="unidades" inputmode="numeric" value="${esc(e.unidades)}" aria-label="Unidades por pacote" placeholder="unid.">
+      <label class="ativa"><input type="checkbox" data-emb-campo="ativa" ${e.ativa ? 'checked' : ''}>Ativa</label>
+      <button class="btn btn-txt" data-emb-remover="${i}" aria-label="Remover ${esc(e.nome)}">${icone('x')}</button>
+      <small>${esc(e.ml || '?')} ml × ${esc(e.unidades || '?')} unidades = ${nf((Number(String(e.ml).replace(',', '.')) || 0) * (Number(e.unidades) || 0) / 100000, 4)} HL por pacote</small>
+    </div>`).join('')}
+  </div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-sec" data-emb-adicionar>Adicionar embalagem</button><button class="btn btn-pri" data-salvar-emb>Salvar embalagens</button></div></div>`;
+}
+function lerEmbEdit() {
+  if (!embEdit) return;
+  $$('[data-emb-linha]').forEach(tr => {
+    const e = embEdit[Number(tr.dataset.embLinha)];
+    if (!e) return;
+    e.nome = $('[data-emb-campo="nome"]', tr).value.trim();
+    e.ml = $('[data-emb-campo="ml"]', tr).value.replace(',', '.');
+    e.unidades = $('[data-emb-campo="unidades"]', tr).value;
+    e.ativa = $('[data-emb-campo="ativa"]', tr).checked;
+  });
 }
 function cfgPriv(k) { return acessosCache && acessosCache.config ? acessosCache.config[k] : ''; }
 function regraSenha(pre, titulo, igual, nomeCod, atual) {
@@ -1344,17 +1409,28 @@ function lerColagem(texto) {
 }
 
 /* ============================== FOLHA: INFORMAR VENDA ============================== */
-let vendaCliente = null;
+let vendaCliente = null, vendaEmb = null;
+function embDaVenda() { return embalagens().find(e => e.nome === vendaEmb) || embAtual(); }
+function desenharOpcoesVenda() {
+  const sel = embDaVenda();
+  $('#vendaEmbalagens').innerHTML = embalagens().map(e => {
+    const f = metricasCliente(vendaCliente, e).faltaCx;
+    return `<button type="button" data-emb-venda="${esc(e.nome)}" aria-pressed="${e.nome === sel.nome}">${esc(e.nome)}<small>${nf(e.hl, 4)} HL · ${f > 0 ? 'faltam ' + f : 'meta batida'}</small></button>`;
+  }).join('');
+  const m = metricasCliente(vendaCliente, sel);
+  $('#vendaRapidos').innerHTML = [...new Set([1, 5, 10, m.faltaCx].filter(n => n > 0))].slice(0, 4)
+    .map(n => `<button type="button" class="chip" data-caixas="${n}">${n === m.faltaCx ? n + ' · bate a meta' : n + ' pacote' + (n === 1 ? '' : 's')}</button>`).join('');
+}
 function abrirVenda(id) {
   vendaCliente = estado.dados.clientes.find(c => c.idCliente === id);
   if (!vendaCliente) return;
   const m = metricasCliente(vendaCliente);
+  vendaEmb = embAtual().nome;
   $('#vendaTitulo').textContent = vendaCliente.cliente;
-  $('#vendaSub').textContent = '#' + vendaCliente.idCliente + ' · ' + (NOME_STATUS[vendaCliente.statusGiro] || '') + ' · faltam ' + m.faltaCx + ' cx para a meta';
+  $('#vendaSub').textContent = '#' + vendaCliente.idCliente + ' · ' + (NOME_STATUS[vendaCliente.statusGiro] || '') + ' · faltam ' + nf(m.faltaHL, 2) + ' HL para a meta';
   $('#vendaCaixas').value = 1;
   $('#vendaObs').value = '';
-  $('#vendaRapidos').innerHTML = [...new Set([5, 10, 20, m.faltaCx].filter(n => n > 0))].slice(0, 4)
-    .map(n => `<button type="button" class="chip" data-caixas="${n}">${n === m.faltaCx ? n + ' cx · bate a meta' : n + ' cx'}</button>`).join('');
+  desenharOpcoesVenda();
   $$('#vendaPrevisao button').forEach((b, i) => b.setAttribute('aria-pressed', String(i === 1)));
   previaVenda();
   const f = $('#folhaVenda');
@@ -1365,12 +1441,13 @@ function abrirVenda(id) {
 function previaVenda() {
   if (!vendaCliente) return;
   const cx = Math.max(1, parseInt($('#vendaCaixas').value, 10) || 1);
-  const m = metricasCliente(vendaCliente);
-  const novo = m.real + cx * fator();
-  const falta = Math.max(0, Math.ceil((m.meta - novo) / fator()));
-  $('#vendaPrevia').innerHTML = `<span>Com <b>${cx} cx</b> (+${nf(cx * fator(), 2)} HL): <b>${nf(novo, 2)}</b> / ${nf(m.meta, 1)} HL</span>` +
-    (novo >= m.meta ? `<span class="bate">${icone('check')}Bate a meta do cliente</span>` : `<span>Ainda faltariam ${falta} cx</span>`);
-  $('#vendaConfirmar').textContent = 'Informar ' + cx + ' cx';
+  const emb = embDaVenda();
+  const m = metricasCliente(vendaCliente, emb);
+  const novo = m.real + cx * emb.hl;
+  const falta = Math.max(0, Math.ceil((m.meta - novo) / emb.hl - 1e-9));
+  $('#vendaPrevia').innerHTML = `<span>Com <b>${cx} × ${esc(emb.nome)}</b> (+${nf(cx * emb.hl, 3)} HL): <b>${nf(novo, 2)}</b> / ${nf(m.meta, 1)} HL</span>` +
+    (novo >= m.meta - 1e-9 ? `<span class="bate">${icone('check')}Bate a meta do cliente</span>` : `<span>Ainda faltariam ${falta} × ${esc(emb.nome)}</span>`);
+  $('#vendaConfirmar').textContent = 'Informar ' + cx + ' × ' + emb.nome;
 }
 function fecharFolha() {
   const f = $('#folhaVenda');
@@ -1384,12 +1461,14 @@ function confirmarVenda(ev) {
   if (!vendaCliente) return;
   const caixas = Math.max(1, parseInt($('#vendaCaixas').value, 10) || 1);
   const previsao = ($$('#vendaPrevisao button').find(b => b.getAttribute('aria-pressed') === 'true') || {}).textContent || '';
+  const emb = embDaVenda();
   const dados = { idCliente: vendaCliente.idCliente, caixas, previsao, obs: $('#vendaObs').value.trim() };
+  if (emb.nome !== 'caixa padrão') dados.embalagem = emb.nome;
   aplicarLocal('informarVenda', dados);
   enfileirar('informarVenda', dados);
   fecharFolha();
   desenhar();
-  avisar(caixas + ' cx informadas em ' + vendaCliente.cliente);
+  avisar(caixas + ' × ' + emb.nome + ' informados em ' + vendaCliente.cliente);
 }
 
 /* Arrastar a folha para baixo para fechar (acompanha o dedo). */
@@ -1452,6 +1531,13 @@ document.addEventListener('click', async e => {
     if (on && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
     if (!on && document.fullscreenElement) document.exitFullscreen().catch(() => {});
     return;
+  }
+  if (d.embVenda) { vendaEmb = d.embVenda; desenharOpcoesVenda(); return previaVenda(); }
+  if (d.embAdicionar !== undefined) { lerEmbEdit(); embEdit.push({ nome: '', ml: '', unidades: '', ativa: true }); $('#painelEmb').innerHTML = tabelaEmbalagens(); return; }
+  if (d.embRemover !== undefined) { lerEmbEdit(); embEdit.splice(Number(d.embRemover), 1); $('#painelEmb').innerHTML = tabelaEmbalagens(); return; }
+  if (d.salvarEmb !== undefined) {
+    lerEmbEdit();
+    return acaoAdmin(b, 'salvarEmbalagens', { embalagens: embEdit.filter(e => e.nome || e.ml || e.unidades) }, () => { embEdit = null; carregarAcessos(); return 'Embalagens salvas.'; });
   }
   if (d.caixas) { $('#vendaCaixas').value = d.caixas; return previaVenda(); }
   if (d.passo) { const i = $('#vendaCaixas'); i.value = Math.max(1, (parseInt(i.value, 10) || 1) + Number(d.passo)); return previaVenda(); }
@@ -1524,6 +1610,7 @@ document.addEventListener('change', e => {
   const f = e.target.dataset && e.target.dataset.filtro;
   if (!f) return;
   estado.ui[f] = e.target.value;
+  if (f === 'embalagem') gravar('giro_embalagem', e.target.value);
   if (f === 'mesa') estado.ui.setor = '';
   estado.ui.pagina = 1;
   desenhar();
@@ -1544,6 +1631,9 @@ irPara = aba => { _irPara(aba); if (aba === 'admin' && !acessosCache) carregarAc
    Responde igual ao Apps Script, para o site funcionar do mesmo jeito.
    ============================================================================= */
 const Demo = (() => {
+  const EMB_PADRAO = [{ nome: '330ml c/12', ml: 330, unidades: 12, ativa: true }, { nome: '330ml c/24', ml: 330, unidades: 24, ativa: true },
+    { nome: '600ml c/12', ml: 600, unidades: 12, ativa: true }, { nome: '600ml c/24', ml: 600, unidades: 24, ativa: true }];
+  const embAtivas = () => (db.embalagens || EMB_PADRAO).filter(e => e.ativa !== false).map(e => Object.assign({}, e, { hl: +(e.ml * e.unidades / 100000).toFixed(6) }));
   const CHAVE = DEMO_ZERADO ? 'giro_demo_zerado_v1' : 'giro_demo_v1';
   function aleatorio(semente) { return () => { semente |= 0; semente = semente + 0x6D2B79F5 | 0; let t = Math.imul(semente ^ semente >>> 15, 1 | semente); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
   function gerar() {
@@ -1590,7 +1680,8 @@ const Demo = (() => {
     }
     return { clientes, historico, alertas: [{ id: 'a1', type: 'SAIDA_CONFIRMADA', title: '🎉 Evolução do Dia: 6 saíram do Zero | 9 p/ Eficiente!', desc: 'Atualização de 18/11 registrada na série do mês.', time: '18/11 09:26' }],
       config: { adminPass: 'demo', sellerPassMode: 'SAME_AS_SETOR', sellerSuffix: '01', sellerKeyword: '', supPassMode: 'SAME_AS_MESA', supSuffix: '01', supKeyword: '',
-        calcMetricMode: 'ATIVOS', boxFactorHL: 0.0396, lastUpdateLabel: 'Hoje (19/11) às 09:26 · demonstração', dataVersion: '1' }, senhas: [] };
+        calcMetricMode: 'ATIVOS', boxFactorHL: 0.0396, lastUpdateLabel: 'Hoje (19/11) às 09:26 · demonstração', dataVersion: '1' }, senhas: [],
+      embalagens: EMB_PADRAO.map(e => Object.assign({}, e)) };
   }
   function vazio() {
     const d = gerar();
@@ -1621,7 +1712,7 @@ const Demo = (() => {
     const s = sessaoDe(b.token);
     if (!s) return { ok: false, erro: 'Seu acesso expirou. Entre novamente.' };
     const admin = s.p === 'ADMIN';
-    const cfgPublica = () => ({ calcMetricMode: db.config.calcMetricMode, boxFactorHL: db.config.boxFactorHL, lastUpdateLabel: db.config.lastUpdateLabel, dataVersion: db.config.dataVersion });
+    const cfgPublica = () => ({ calcMetricMode: db.config.calcMetricMode, boxFactorHL: db.config.boxFactorHL, lastUpdateLabel: db.config.lastUpdateLabel, dataVersion: db.config.dataVersion, embalagens: embAtivas() });
     switch (b.acao) {
       case 'dados':
         if (b.desde && b.desde === db.config.dataVersion) return { ok: true, semMudancas: true, dataVersion: db.config.dataVersion };
@@ -1632,9 +1723,12 @@ const Demo = (() => {
         if (!vePode(s, c)) return { ok: false, erro: 'Este cliente não pertence à sua carteira.' };
         const autor = admin ? 'Administrador' : (s.p === 'VENDEDOR' ? 'Setor ' : 'Mesa ') + s.c;
         if (b.acao === 'informarVenda') {
-          Object.assign(c, { vendaInformada: true, vendaCaixas: b.caixas, vendaPrevisao: b.previsao, vendaObs: b.obs || 'Venda informada de ' + b.caixas + ' caixas aguardando faturamento.', vendaAutor: autor, vendaData: new Date().toISOString() });
-          alerta({ type: 'AMARELO', title: '🟡 Venda Informada (+' + b.caixas + ' cx) — ' + c.cliente, desc: autor + ' marcou venda. Previsão: ' + b.previsao + '.' });
-        } else Object.assign(c, { vendaInformada: false, vendaCaixas: 0, vendaObs: '', vendaPrevisao: '' });
+          const emb = b.embalagem ? embAtivas().find(e => e.nome === b.embalagem) : { nome: 'caixa padrão', hl: db.config.boxFactorHL };
+          if (!emb) return { ok: false, erro: 'Embalagem "' + b.embalagem + '" não existe mais. Atualize a página.' };
+          Object.assign(c, { vendaInformada: true, vendaCaixas: b.caixas, vendaEmbalagem: emb.nome, vendaHL: +(b.caixas * emb.hl).toFixed(4), vendaPrevisao: b.previsao,
+            vendaObs: b.obs || 'Venda de ' + b.caixas + ' × ' + emb.nome + ' aguardando faturamento.', vendaAutor: autor, vendaData: new Date().toISOString() });
+          alerta({ type: 'AMARELO', title: '🟡 Venda Informada (' + b.caixas + ' × ' + emb.nome + ') — ' + c.cliente, desc: autor + ' marcou venda. Previsão: ' + b.previsao + '.' });
+        } else Object.assign(c, { vendaInformada: false, vendaCaixas: 0, vendaEmbalagem: '', vendaHL: 0, vendaObs: '', vendaPrevisao: '' });
         salvar();
         return { ok: true, cliente: JSON.parse(JSON.stringify(c)), dataVersion: db.config.dataVersion };
       }
@@ -1645,7 +1739,7 @@ const Demo = (() => {
         let n = 0;
         db.clientes.forEach(c => {
           if (!c.vendaInformada) return;
-          c.prevStatus = c.statusGiro; c.prevHL = c.realHL; c.realHL = +(c.realHL + c.vendaCaixas * db.config.boxFactorHL).toFixed(2);
+          c.prevStatus = c.statusGiro; c.prevHL = c.realHL; c.realHL = +(c.realHL + (c.vendaHL > 0 ? c.vendaHL : c.vendaCaixas * db.config.boxFactorHL)).toFixed(2);
           if (c.realHL >= c.metaHL) { c.statusGiro = 'GIRO EFICIENTE'; c.saidaConfirmada = true; } else if (c.realHL > 0) c.statusGiro = 'BAIXO DESEMPENHO';
           c.vendaInformada = false; n++;
         });
@@ -1681,7 +1775,13 @@ const Demo = (() => {
           acessos.push({ tipo: t, codigo: cod, nome, senha: senhaDe(t, cod), individual: db.senhas.some(x => x.tipo === t && x.codigo === cod) });
         }));
         const { adminPass, ...cfg } = db.config;
-        return { ok: true, acessos, config: cfg };
+        return { ok: true, acessos, config: cfg, embalagens: (db.embalagens || EMB_PADRAO).map(e => Object.assign({}, e)) };
+      }
+      case 'salvarEmbalagens': {
+        const l = (b.embalagens || []).map(e => ({ nome: String(e.nome || '').trim(), ml: Number(String(e.ml).replace(',', '.')), unidades: Math.round(Number(e.unidades)), ativa: e.ativa !== false }));
+        if (l.some(e => !e.nome || !(e.ml > 0) || !(e.unidades > 0))) return { ok: false, erro: 'Confira nome, ml e unidades de todas as embalagens.' };
+        if (!l.some(e => e.ativa)) return { ok: false, erro: 'Deixe pelo menos uma embalagem ativa.' };
+        db.embalagens = l; salvar(); return { ok: true };
       }
       case 'definirSenha': db.senhas = db.senhas.filter(x => !(x.tipo === b.tipo && x.codigo === b.codigo)); if (b.senha) db.senhas.push({ tipo: b.tipo, codigo: b.codigo, senha: b.senha }); salvar(); return { ok: true };
       case 'novoCiclo': db.clientes.forEach(c => { c.monthStartStatus = c.statusGiro; c.monthStartHL = c.realHL; c.saidaConfirmada = false; }); db.historico = []; db.alertas = []; salvar(); return { ok: true };
