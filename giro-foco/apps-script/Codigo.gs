@@ -19,8 +19,10 @@
 
 // ============================== CONFIGURAÇÕES ==============================
 
-var VERSAO_API = '2.2.0';
-var ARQUIVO_DO_SITE = 'Site';             // nome do arquivo HTML com o site, dentro do Apps Script
+var VERSAO_API = '2.3.0';
+var ARQUIVO_DO_SITE = 'Site';             // (opcional) arquivo HTML com o site dentro do Apps Script; tem prioridade
+// De onde o site é baixado quando não existe o arquivo "Site". Atualizações do site chegam sozinhas (em até 10 min).
+var URL_CODIGO_DO_SITE = 'https://raw.githubusercontent.com/thithivlogs/meu-planejamento/claude/giro-foto-site-improvements-dnxhu6/giro-foco/site/index.html';
 var CHAVE_ESTADO_ANTIGO = 'GIRO_CDA_CLOUD_STATE';
 var DIAS_VALIDADE_ACESSO = 30;          // por quantos dias o aparelho fica conectado
 var MAX_TENTATIVAS_ERRADAS = 8;         // tentativas de senha errada antes de bloquear por 10 minutos
@@ -117,10 +119,10 @@ function doGet(e) {
 function paginaDoSite() {
   var html;
   try {
-    html = HtmlService.createHtmlOutputFromFile(ARQUIVO_DO_SITE).getContent();
+    html = htmlDoSite();
   } catch (err) {
-    return HtmlService.createHtmlOutput('<p style="font:16px system-ui;padding:24px">Falta o arquivo HTML <b>' + ARQUIVO_DO_SITE +
-      '</b> no Apps Script (Arquivo + → HTML). Cole nele o código do site e implante uma nova versão.</p>');
+    return HtmlService.createHtmlOutput('<p style="font:16px system-ui;padding:24px">Não consegui carregar o site agora (' +
+      String(err && err.message || err).replace(/</g, '&lt;') + '). Tente de novo em alguns minutos.</p>');
   }
   // Liga o site nesta mesma implantação (se o código colado ainda não tiver a URL da nuvem).
   var url = ScriptApp.getService().getUrl();
@@ -199,6 +201,40 @@ function executarAcao(corpo) {
   } finally {
     trava.releaseLock();
   }
+}
+
+/** Rode esta função UMA vez pelo editor (botão Executar) para autorizar o Apps Script a baixar o site. */
+function testarSite() {
+  var html = htmlDoSite();
+  Logger.log('Site carregado: ' + html.length + ' caracteres. Pode implantar a nova versão.');
+  return html.length;
+}
+
+/** Código do site: arquivo "Site" do projeto (se existir) ou baixado do GitHub, guardado 10 min no cache. */
+function htmlDoSite() {
+  try {
+    return HtmlService.createHtmlOutputFromFile(ARQUIVO_DO_SITE).getContent();
+  } catch (semArquivo) { /* segue para o download */ }
+  var cache = CacheService.getScriptCache();
+  var n = Number(cache.get('site_partes') || 0);
+  if (n > 0) {
+    var chaves = [];
+    for (var i = 0; i < n; i++) chaves.push('site_' + i);
+    var partes = cache.getAll(chaves);
+    if (chaves.every(function (k) { return partes[k] !== undefined && partes[k] !== null; })) {
+      return chaves.map(function (k) { return partes[k]; }).join('');
+    }
+  }
+  var resp = UrlFetchApp.fetch(URL_CODIGO_DO_SITE, { muteHttpExceptions: true, followRedirects: true });
+  if (resp.getResponseCode() !== 200) throw new Error('download do site respondeu ' + resp.getResponseCode());
+  var html = resp.getContentText('UTF-8');
+  if (html.indexOf('<!DOCTYPE html>') !== 0) throw new Error('o arquivo baixado não parece o site');
+  // O cache aceita até 100 KB por valor: guarda em pedaços.
+  var TAM = 40000, guardar = {};
+  for (var j = 0; j * TAM < html.length; j++) guardar['site_' + j] = html.substr(j * TAM, TAM);
+  guardar.site_partes = String(j);
+  cache.putAll(guardar, 600);
+  return html;
 }
 
 // ============================== ACESSO E SENHAS ==============================

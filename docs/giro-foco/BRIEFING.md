@@ -85,6 +85,9 @@ Arquivos: `docs/giro-foco/codigo-atual/Codigo-apps-script.gs` (Apps Script) e `a
 - **Tela cheia (20/11):** o bloco "Incorporar" do Google Sites encolhe no celular (mantém a proporção), então o site
   passou a ser servido pelo próprio Apps Script: `doGet` sem `acao` devolve o arquivo HTML **`Site`** do projeto
   (HtmlService, viewport, ALLOWALL) e injeta a URL `/exec`. No Google Sites fica só um **Botão** nativo para o `/exec`.
+  Desde a 2.3.0, sem o arquivo `Site` o Apps Script **baixa `giro-foco/site/index.html` do GitHub** (raw da branch
+  `claude/giro-foto-site-improvements-dnxhu6`, constante `URL_CODIGO_DO_SITE`, cache em pedaços de 10 min): push na
+  branch = site atualizado. Se a branch mudar/for apagada, atualizar a constante. `testarSite` autoriza o UrlFetch.
 - **Site para o Google Sites:** `giro-foco/site/versao-google-sites.html`, gerado por `gerar-versao-google-sites.js <URL>`.
 - **Embalagens (pedido do usuário, 19/11):** aba `Embalagens` (nome, ml, unidades, ativa; padrão 330ml c/12, 330ml c/24,
   600ml c/12, 600ml c/24). HL do pacote = ml × unidades ÷ 100.000. Venda guarda `vendaEmbalagem` + `vendaHL` (colunas

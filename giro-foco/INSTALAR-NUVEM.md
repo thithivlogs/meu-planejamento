@@ -20,15 +20,19 @@ Versão: Nova versão → Implantar**. Assim a URL `/exec` continua a mesma.
 
 O bloco "Incorporar" do Google Sites tem altura fixa e encolhe no celular. Por isso o site abre pelo
 próprio link do Apps Script (`/exec`), em tela cheia, e o Google Sites só tem um botão que leva até ele.
+Desde a versão 2.3.0 o Apps Script **baixa o site sozinho do GitHub** (`URL_CODIGO_DO_SITE`, cache de 10 min):
+não é preciso colar o site em lugar nenhum, e as melhorias do site chegam sozinhas.
 
-1. No Apps Script da planilha: **Arquivo (+) → HTML**, nome **`Site`** (exatamente assim).
-2. Apague o conteúdo do arquivo `Site.html` e cole **todo** o código do site
-   (link em texto puro: `giro-foco/site/versao-google-sites.html` no GitHub, Ctrl+A, Ctrl+C). Salve.
-3. Cole também o `Código.gs` mais novo (versão 2.2.0 ou maior). Salve.
-4. **Implantar → Gerenciar implantações → lápis → Versão: Nova versão → Implantar.** A URL `/exec` não muda.
-5. Abra a URL `/exec` no celular: o site abre em tela cheia. No Chrome: menu ⋮ → **Adicionar à tela inicial**.
-6. No Google Sites: apague o bloco incorporado, use **Inserir → Botão**, nome **Abrir Giro Foco**,
+1. Apps Script da planilha → `Código.gs` → Ctrl+A → cole o código novo (versão 2.3.0 ou maior) → Salvar.
+2. Na caixa de funções (ao lado de "Executar") escolha **`testarSite`** → **Executar** → autorize
+   (a permissão nova é "conectar a um serviço externo", para baixar o site).
+3. **Implantar → Gerenciar implantações → lápis → Versão: Nova versão → Implantar.** A URL `/exec` não muda.
+4. Abra a URL `/exec` no celular: o site abre em tela cheia. No Chrome: menu ⋮ → **Adicionar à tela inicial**.
+5. No Google Sites: apague o bloco incorporado, use **Inserir → Botão**, nome **Abrir Giro Foco**,
    link = a URL `/exec`. Publique.
+
+Opcional: para fixar uma versão do site (sem atualização automática), crie no Apps Script um arquivo HTML
+chamado **`Site`** e cole o código do site nele; ele tem prioridade sobre o download.
 
 (Contas pessoais do Google mostram uma faixa cinza no topo: "Este aplicativo foi criado por um usuário do
 Google Apps Script". É normal e não atrapalha.)

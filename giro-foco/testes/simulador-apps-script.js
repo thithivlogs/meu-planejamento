@@ -79,7 +79,8 @@ class Intervalo {
   setFontWeight() { return this; }
 }
 
-function criarAmbiente({ propriedades = {}, arquivosHtml = {} } = {}) {
+function criarAmbiente({ propriedades = {}, arquivosHtml = {}, internet = {} } = {}) {
+  const downloads = [];
   const abas = {};
   const props = Object.assign({}, propriedades);
   const cache = {};
@@ -101,7 +102,14 @@ function criarAmbiente({ propriedades = {}, arquivosHtml = {} } = {}) {
       get: k => (k in cache ? cache[k] : null),
       put: (k, v) => { cache[k] = String(v); },
       remove: k => { delete cache[k]; },
+      putAll: (obj) => { Object.assign(cache, obj); },
+      getAll: (ks) => { const o = {}; ks.forEach(k => { if (k in cache) o[k] = cache[k]; }); return o; },
     }) },
+    UrlFetchApp: { fetch: (url) => {
+      downloads.push(url);
+      if (!(url in internet)) return { getResponseCode: () => 404, getContentText: () => 'Not found' };
+      return { getResponseCode: () => 200, getContentText: () => internet[url] };
+    } },
     LockService: { getScriptLock: () => ({ tryLock: () => true, waitLock: () => {}, releaseLock: () => {} }) },
     ContentService: {
       MimeType: { JSON: 'application/json' },
@@ -156,7 +164,7 @@ function criarAmbiente({ propriedades = {}, arquivosHtml = {} } = {}) {
   function pagina(parametros = {}) { return contexto.doGet({ parameter: parametros }); }
 
   return {
-    ctx: contexto, abas, props, cache, post, get, pagina,
+    ctx: contexto, abas, props, cache, post, get, pagina, downloads,
     avancarRelogio: ms => { agoraFalso = (agoraFalso !== null ? agoraFalso : RealDate.now()) + ms; },
   };
 }

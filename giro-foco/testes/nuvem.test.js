@@ -311,6 +311,22 @@ test('o link /exec abre o site em tela cheia, já ligado na própria nuvem', () 
   assert.equal(p.modo, 'ALLOWALL');
   assert.match(p.titulo, /Giro Foco/);
   assert.equal(amb.get({ acao: 'ping' }).ok, true);
-  // Sem o arquivo "Site": mostra como resolver em vez de quebrar
-  assert.match(criarAmbiente().pagina().html, /Falta o arquivo HTML/);
+  // Sem o arquivo "Site" e sem internet: mostra um aviso em vez de quebrar
+  assert.match(criarAmbiente().pagina().html, /Não consegui carregar o site/);
+});
+
+test('sem o arquivo "Site", o site é baixado do GitHub uma vez e fica no cache', () => {
+  const site = require('fs').readFileSync(require('path').join(__dirname, '..', 'site', 'index.html'), 'utf8');
+  const amb = criarAmbiente({ internet: {} });
+  amb.ctx.URL_CODIGO_DO_SITE = 'https://exemplo.teste/index.html';
+  const semRede = amb.pagina();
+  assert.match(semRede.html, /Não consegui carregar o site/);
+  amb.ctx.URL_CODIGO_DO_SITE = 'https://exemplo.teste/site.html';
+  const amb2 = criarAmbiente({ internet: { 'https://exemplo.teste/site.html': site } });
+  amb2.ctx.URL_CODIGO_DO_SITE = 'https://exemplo.teste/site.html';
+  const p1 = amb2.pagina(), p2 = amb2.pagina();
+  assert.equal(amb2.downloads.length, 1, 'deveria baixar só uma vez');
+  assert.equal(p1.html, p2.html);
+  assert.ok(p2.html.includes("window.GIRO_URL_NUVEM || 'https://script.google.com/macros/s/TESTE/exec'"));
+  assert.ok(p2.html.length > 100000 && p2.html.endsWith('</html>\n'));
 });
