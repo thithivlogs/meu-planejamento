@@ -47,7 +47,44 @@
   --saida: cubic-bezier(.16, 1, .3, 1);
   --fonte: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --nav-alt: 64px;
+  --acento: #0a4a29;          /* texto de destaque verde (botões, abas) */
+  --trilho: #e6ece8;          /* fundo de barras e medidores */
+  --trilho-2: #f3f6f4;
+  --barra-nav: rgba(255,255,255,.96);
+  --borda-amarelo: #f0dc8c;
+  --borda-erro: #f2b8c0;
+  --etq-exp: #f1f1f4; --etq-exp-texto: #4b4b57;
+  --grade-grafico: #e1e8e3;
+  color-scheme: light;
 }
+
+/* ============================== MODO ESCURO ============================== */
+:root[data-tema="escuro"] {
+  --verde-200: #1f5a3a; --verde-100: #15392a; --verde-50: #102a1e;
+  --zero-texto: #ff8d9c;  --zero-fundo: #3b1219;
+  --baixo-texto: #ffab70; --baixo-fundo: #3a2110;
+  --efic: #1fa463; --efic-texto: #63d395; --efic-fundo: #0f3221;
+  --amarelo-texto: #ffd761; --amarelo-fundo: #33290a;
+  --tinta: #e9f2ed; --tinta-2: #bccbc2; --tinta-3: #93a69b;
+  --linha: #243a2f; --linha-forte: #355244;
+  --fundo: #08130e; --superficie: #111e18; --superficie-2: #172a21;
+  --sombra-1: 0 1px 2px rgba(0,0,0,.4), 0 2px 6px rgba(0,0,0,.25);
+  --sombra-2: 0 8px 20px -6px rgba(0,0,0,.6), 0 2px 4px rgba(0,0,0,.3);
+  --acento: #6ee0a0;
+  --trilho: #22362c; --trilho-2: #2b4337;
+  --barra-nav: rgba(13,24,19,.94);
+  --borda-amarelo: #5c4b12; --borda-erro: #6a2430;
+  --etq-exp: #24262d; --etq-exp-texto: #c6c8d2;
+  --grade-grafico: #26392f;
+  color-scheme: dark;
+}
+:root[data-tema="escuro"] .seg[data-s="GIRO EFICIENTE"] { --cor-topo: #3cc47b; }
+:root[data-tema="escuro"] select.entrada { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='%23bccbc2' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 8 4 4 4-4'/%3E%3C/svg%3E"); }
+:root[data-tema="escuro"] .chip[aria-pressed="true"] { background: var(--verde-600); border-color: var(--verde-600); }
+:root[data-tema="escuro"] .faixa-demo { border-bottom-color: var(--borda-amarelo); }
+:root[data-tema="escuro"] .segmentado button[aria-pressed="true"] { background: var(--verde-100); box-shadow: 0 0 0 1px var(--verde-200); }
+:root[data-tema="escuro"] .cli-nome b, :root[data-tema="escuro"] .contagem b { color: var(--tinta) !important; }
+body { transition: background-color .2s ease, color .2s ease; }
 
 /* ============================== BASE ============================== */
 * { box-sizing: border-box; }
@@ -79,11 +116,11 @@ svg.ic { width: 20px; height: 20px; flex: none; stroke: currentColor; fill: none
 .btn:disabled { opacity: .5; cursor: not-allowed; }
 .btn-pri { background: var(--verde-600); color: #fff; box-shadow: 0 1px 0 rgba(255,255,255,.18) inset, 0 4px 12px -4px rgba(0,102,51,.55); }
 .btn-pri:hover:not(:disabled) { background: var(--verde-700); }
-.btn-sec { background: var(--superficie); color: var(--verde-800); border-color: var(--linha-forte); }
+.btn-sec { background: var(--superficie); color: var(--acento); border-color: var(--linha-forte); }
 .btn-sec:hover:not(:disabled) { background: var(--verde-50); }
-.btn-txt { background: transparent; color: var(--verde-700); min-height: 40px; padding: 0 10px; }
+.btn-txt { background: transparent; color: var(--acento); min-height: 40px; padding: 0 10px; }
 .btn-txt:hover { background: var(--verde-50); }
-.btn-perigo { background: var(--superficie); color: var(--zero-texto); border-color: #f2b8c0; }
+.btn-perigo { background: var(--superficie); color: var(--zero-texto); border-color: var(--borda-erro); }
 .btn-perigo:hover { background: var(--zero-fundo); }
 .btn-bloco { width: 100%; }
 .btn .giro { width: 18px; height: 18px; border: 2.5px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: girar .7s linear infinite; }
@@ -105,7 +142,7 @@ select.entrada { appearance: none; padding-right: 40px; background-image: url("d
   flex: 1; min-height: 42px; border: 0; border-radius: 10px; background: transparent; font-weight: 600; color: var(--tinta-2);
   font-size: 15px; transition: background-color .18s, color .18s, box-shadow .18s; padding: 0 8px;
 }
-.segmentado button[aria-pressed="true"] { background: var(--superficie); color: var(--verde-800); box-shadow: var(--sombra-1), 0 0 0 1px var(--linha); }
+.segmentado button[aria-pressed="true"] { background: var(--superficie); color: var(--acento); box-shadow: var(--sombra-1), 0 0 0 1px var(--linha); }
 
 /* ============================== ENTRAR ============================== */
 .entrar {
@@ -122,7 +159,7 @@ select.entrada { appearance: none; padding-right: 40px; background-image: url("d
 .entrar h1 { font-size: 30px; line-height: 1.12; letter-spacing: -.025em; margin: 0 0 8px; font-weight: 750; }
 .entrar p.sub { margin: 0 0 22px; color: #cfe8d8; font-size: 16px; }
 .cartao-entrar { background: var(--superficie); color: var(--tinta); border-radius: 20px; padding: 18px; box-shadow: var(--sombra-3); display: grid; gap: 16px; }
-.erro-msg { background: var(--zero-fundo); color: var(--zero-texto); border: 1px solid #f2b8c0; padding: 10px 12px; border-radius: 10px; font-size: 15px; font-weight: 550; }
+.erro-msg { background: var(--zero-fundo); color: var(--zero-texto); border: 1px solid var(--borda-erro); padding: 10px 12px; border-radius: 10px; font-size: 15px; font-weight: 550; }
 .dica-demo { margin-top: 16px; font-size: 14px; color: #cfe8d8; line-height: 1.5; }
 .dica-demo code { background: rgba(255,255,255,.12); padding: 1px 6px; border-radius: 6px; font-family: inherit; font-weight: 650; color: #fff; }
 .lembrar { display: flex; align-items: center; gap: 10px; font-size: 15px; color: var(--tinta-2); }
@@ -136,7 +173,7 @@ select.entrada { appearance: none; padding-right: 40px; background-image: url("d
 }
 .topo .estrela { width: 28px; height: 28px; flex: none; }
 .topo-txt { min-width: 0; flex: 1; }
-.topo-txt b { display: block; font-size: 17px; letter-spacing: -.01em; line-height: 1.15; }
+.topo-txt b { display: block; font-size: 17px; letter-spacing: -.01em; line-height: 1.15; white-space: nowrap; }
 .topo-txt span { display: block; font-size: 13px; color: #bfe3cc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pilula-sinc {
   display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border-radius: 999px; border: 0;
@@ -149,7 +186,7 @@ select.entrada { appearance: none; padding-right: 40px; background-image: url("d
 @keyframes pulsar { 50% { opacity: .35; } }
 .btn-icone { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 12px; border: 0; background: transparent; color: inherit; flex: none; }
 .btn-icone:hover { background: rgba(255,255,255,.1); }
-.faixa-demo { background: var(--amarelo-fundo); color: var(--amarelo-texto); font-size: 13px; font-weight: 600; padding: 7px 14px; text-align: center; border-bottom: 1px solid #f0dc8c; }
+.faixa-demo { background: var(--amarelo-fundo); color: var(--amarelo-texto); font-size: 13px; font-weight: 600; padding: 7px 14px; text-align: center; border-bottom: 1px solid var(--borda-amarelo); }
 
 main { padding: 16px 14px calc(var(--nav-alt) + 28px + env(safe-area-inset-bottom)); max-width: 1180px; margin: 0 auto; }
 .vista { display: grid; gap: 16px; animation: entrarVista .22s var(--saida); }
@@ -164,14 +201,14 @@ main { padding: 16px 14px calc(var(--nav-alt) + 28px + env(safe-area-inset-botto
 
 .abas {
   position: fixed; z-index: 30; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-around;
-  background: rgba(255,255,255,.96); backdrop-filter: saturate(1.4) blur(12px); -webkit-backdrop-filter: saturate(1.4) blur(12px);
+  background: var(--barra-nav); backdrop-filter: saturate(1.4) blur(12px); -webkit-backdrop-filter: saturate(1.4) blur(12px);
   border-top: 1px solid var(--linha); padding: 6px 4px max(6px, env(safe-area-inset-bottom));
 }
 .abas button {
   position: relative; flex: 1; max-width: 120px; min-height: 52px; display: grid; justify-items: center; align-content: center; gap: 2px;
   border: 0; background: transparent; color: var(--tinta-3); font-size: 12px; font-weight: 600; border-radius: 12px;
 }
-.abas button[aria-current="page"] { color: var(--verde-700); }
+.abas button[aria-current="page"] { color: var(--acento); }
 .abas button[aria-current="page"] svg { stroke-width: 2.3; }
 .abas button[aria-current="page"]::before { content: ""; position: absolute; top: 2px; width: 36px; height: 30px; border-radius: 10px; background: var(--verde-100); z-index: -1; }
 .abas .selo { position: absolute; top: 2px; left: calc(50% + 6px); min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--amarelo); color: #3a2a00; font-size: 11px; font-weight: 750; display: grid; place-items: center; }
@@ -242,7 +279,7 @@ main { padding: 16px 14px calc(var(--nav-alt) + 28px + env(safe-area-inset-botto
   background: var(--superficie); border-radius: var(--raio); box-shadow: var(--sombra-1); padding: 14px; display: grid; gap: 10px;
   border: 1px solid transparent; transition: box-shadow .2s, transform .2s var(--saida);
 }
-.cli.amarelo { background: linear-gradient(180deg, var(--amarelo-fundo), var(--superficie) 70%); border-color: #f0dc8c; }
+.cli.amarelo { background: linear-gradient(180deg, var(--amarelo-fundo), var(--superficie) 70%); border-color: var(--borda-amarelo); }
 .cli-topo { display: flex; align-items: flex-start; gap: 10px; }
 .cli-nome { flex: 1; min-width: 0; }
 .cli-nome b { display: block; font-size: 17px; line-height: 1.25; letter-spacing: -.01em; overflow-wrap: anywhere; }
@@ -256,11 +293,11 @@ main { padding: 16px 14px calc(var(--nav-alt) + 28px + env(safe-area-inset-botto
 .etq { font-size: 12.5px; font-weight: 650; padding: 3px 8px; border-radius: 7px; background: var(--superficie-2); color: var(--tinta-2); border: 1px solid var(--linha); display: inline-flex; gap: 4px; align-items: center; }
 .etq svg.ic { width: 14px; height: 14px; }
 .etq.ok { background: var(--efic-fundo); color: var(--efic-texto); border-color: var(--verde-200); }
-.etq.exp { background: #f1f1f4; color: #4b4b57; }
+.etq.exp { background: var(--etq-exp); color: var(--etq-exp-texto); }
 .medidor { display: grid; gap: 6px; }
 .medidor-num { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; color: var(--tinta-2); }
 .medidor-num b { color: var(--tinta); font-size: 15px; }
-.medidor-trilho { position: relative; height: 10px; border-radius: 6px; background: #e6ece8; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,.08); }
+.medidor-trilho { position: relative; height: 10px; border-radius: 6px; background: var(--trilho); overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,.08); }
 .medidor-trilho i { position: absolute; inset: 0 auto 0 0; border-radius: 6px; background: var(--c); }
 .medidor-trilho em { position: absolute; top: 0; bottom: 0; border-radius: 6px; background: repeating-linear-gradient(-45deg, var(--amarelo) 0 5px, #ffe27a 5px 10px); }
 .cli-acoes { display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
@@ -269,7 +306,7 @@ main { padding: 16px 14px calc(var(--nav-alt) + 28px + env(safe-area-inset-botto
 .mais { display: flex; justify-content: center; padding: 6px 0; }
 .vazio { text-align: center; padding: 32px 18px; color: var(--tinta-3); background: var(--superficie); border-radius: var(--raio); border: 1.5px dashed var(--linha-forte); }
 .vazio b { display: block; color: var(--tinta); font-size: 17px; margin-bottom: 4px; }
-.esqueleto { height: 132px; border-radius: var(--raio); background: linear-gradient(90deg, #e6ece8 0%, #f3f6f4 50%, #e6ece8 100%); background-size: 200% 100%; animation: brilho 1.2s ease-in-out infinite; }
+.esqueleto { height: 132px; border-radius: var(--raio); background: linear-gradient(90deg, var(--trilho) 0%, var(--trilho-2) 50%, var(--trilho) 100%); background-size: 200% 100%; animation: brilho 1.2s ease-in-out infinite; }
 @keyframes brilho { to { background-position: -200% 0; } }
 
 /* ============================== FOLHA (informar venda) ============================== */
@@ -289,7 +326,7 @@ dialog.folha.fechando::backdrop { opacity: 0; transition: opacity .2s; }
 .folha h2 { margin: 0; font-size: 20px; letter-spacing: -.015em; }
 .folha .sub { margin: 2px 0 0; color: var(--tinta-3); font-size: 14px; }
 .passo { display: grid; grid-template-columns: 56px 1fr 56px; gap: 8px; align-items: center; }
-.passo button { height: 56px; border-radius: 14px; border: 1px solid var(--linha-forte); background: var(--superficie-2); font-size: 26px; font-weight: 600; color: var(--verde-800); }
+.passo button { height: 56px; border-radius: 14px; border: 1px solid var(--linha-forte); background: var(--superficie-2); font-size: 26px; font-weight: 600; color: var(--acento); }
 .passo button:active { transform: scale(.95); }
 .passo input { text-align: center; font-size: 28px; font-weight: 750; min-height: 56px; }
 .rapidos { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -328,9 +365,9 @@ dialog.folha.fechando::backdrop { opacity: 0; transition: opacity .2s; }
 .rank-nome span { display: block; font-size: 12.5px; color: var(--tinta-3); }
 .rank-val { text-align: right; font-size: 15px; font-weight: 750; color: var(--zero-texto); }
 .rank-val small { display: block; font-size: 12px; color: var(--tinta-3); font-weight: 550; }
-.pilha { grid-column: 2 / 4; display: flex; height: 12px; border-radius: 6px; overflow: hidden; background: #e6ece8; }
+.pilha { grid-column: 2 / 4; display: flex; height: 12px; border-radius: 6px; overflow: hidden; background: var(--trilho); }
 .pilha i { display: block; height: 100%; background: var(--c); transition: width .6s var(--saida); }
-.pilha i + i { box-shadow: -1px 0 0 #fff; }
+.pilha i + i { box-shadow: -1px 0 0 var(--superficie); }
 
 /* ============================== ADMINISTRAÇÃO ============================== */
 .opcoes { display: grid; gap: 8px; }
@@ -423,6 +460,8 @@ body.apresentacao .pilha { height: 18px; }
     <symbol id="i-tela" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></symbol>
     <symbol id="i-alerta" viewBox="0 0 24 24"><path d="M12 3 2.5 20h19z"/><path d="M12 10v4M12 17h.01"/></symbol>
     <symbol id="i-sino" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></symbol>
+    <symbol id="i-lua" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol>
+    <symbol id="i-sol" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></symbol>
   </defs>
 </svg>
 
@@ -463,6 +502,7 @@ body.apresentacao .pilha { height: 18px; }
     <svg class="estrela"><use href="#i-estrela"/></svg>
     <div class="topo-txt"><b>Giro Foco</b><span id="topoQuem"></span></div>
     <button class="pilula-sinc" id="pilulaSinc" data-estado="ok" title="Toque para atualizar agora"><i></i><span id="sincTxt">Atualizado</span></button>
+    <button class="btn-icone" id="btnTema" aria-label="Modo escuro" title="Modo escuro"><svg class="ic"><use href="#i-lua"/></svg></button>
     <button class="btn-icone" id="btnSair" aria-label="Sair"><svg class="ic"><use href="#i-sair"/></svg></button>
   </header>
   <nav class="abas" id="abas" aria-label="Seções"></nav>
@@ -519,6 +559,7 @@ const ATUALIZAR_A_CADA_SEG = 90;                 // de quanto em quanto tempo bu
 const ITENS_POR_PAGINA = 40;
 
 const MODO_DEMO = !URL_NUVEM;
+const DEMO_ZERADO = Boolean(window.GIRO_DEMO_ZERADO);  // true = demonstração começa sem clientes (para testar a colagem)
 const STATUS = ['GIRO ZERO', 'BAIXO DESEMPENHO', 'GIRO EFICIENTE'];
 const NOME_STATUS = { 'GIRO ZERO': 'Giro zero', 'BAIXO DESEMPENHO': 'Baixo desempenho', 'GIRO EFICIENTE': 'Giro eficiente' };
 const COR_STATUS = { 'GIRO ZERO': 'var(--zero)', 'BAIXO DESEMPENHO': 'var(--baixo)', 'GIRO EFICIENTE': 'var(--efic)' };
@@ -548,6 +589,21 @@ function dataCurta(iso) {
   if (d.toDateString() === ontem.toDateString()) return 'ontem às ' + hora;
   return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' às ' + hora;
 }
+
+/* ============================== TEMA (claro / escuro) ============================== */
+function aplicarTema(tema) {
+  document.documentElement.dataset.tema = tema;
+  const b = document.getElementById('btnTema');
+  if (b) {
+    const escuro = tema === 'escuro';
+    b.setAttribute('aria-label', escuro ? 'Modo claro' : 'Modo escuro');
+    b.title = escuro ? 'Modo claro' : 'Modo escuro';
+    b.innerHTML = `<svg class="ic" aria-hidden="true"><use href="#i-${escuro ? 'sol' : 'lua'}"/></svg>`;
+  }
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.content = tema === 'escuro' ? '#04261a' : '#06331c';
+}
+aplicarTema(ler('giro_tema', matchMedia('(prefers-color-scheme: dark)').matches ? 'escuro' : 'claro'));
 
 /* ============================== ESTADO ============================== */
 const estado = {
@@ -600,7 +656,7 @@ function atualizarPilula() {
   if (estado.pendentes.length) {
     definirSinc('pendente', estado.pendentes.length === 1 ? '1 envio pendente' : estado.pendentes.length + ' envios pendentes');
   } else if (estado.ultimaAtualizacao) {
-    definirSinc('ok', 'Atualizado ' + estado.ultimaAtualizacao.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
+    definirSinc('ok', (window.innerWidth < 430 ? '' : 'Atualizado ') + estado.ultimaAtualizacao.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
   }
 }
 
@@ -752,7 +808,12 @@ function prepararEntrada(msg) {
   else escolherPerfil('VENDEDOR');
   $('#entSenha').value = '';
   mostrarErroEntrada(msg || '');
-  if (MODO_DEMO) {
+  if (MODO_DEMO && DEMO_ZERADO) {
+    const d = $('#dicaDemo');
+    d.classList.remove('oculto');
+    d.innerHTML = 'Teste zerado: entre como <code>Admin</code> com a senha <code>demo</code>, vá em <b>Admin</b> e cole a base copiada do Excel. ' +
+      'Depois cada vendedor entra com o número do setor (senha igual ao número). Os dados ficam só neste navegador.';
+  } else if (MODO_DEMO) {
     const d = $('#dicaDemo');
     d.classList.remove('oculto');
     d.innerHTML = 'Modo demonstração (dados fictícios). Experimente: vendedor <code>70101</code> senha <code>70101</code> · ' +
@@ -817,6 +878,7 @@ function abrirApp() {
   $('#telaEntrar').hidden = true;
   $('#app').hidden = false;
   $('#faixaDemo').classList.toggle('oculto', !MODO_DEMO);
+  if (DEMO_ZERADO) $('#faixaDemo').textContent = 'Teste zerado · o que você colar fica só neste navegador, nada vai para a nuvem';
   const s = estado.sessao;
   $('#topoQuem').textContent = s.perfil === 'ADMIN' ? 'Administrador · todas as mesas'
     : (s.perfil === 'VENDEDOR' ? 'Setor ' : 'Mesa ') + s.codigo + (s.nome ? ' · ' + s.nome : '');
@@ -852,6 +914,10 @@ function irPara(aba) {
 
 function desenhar() {
   if (!estado.sessao || !estado.dados) return;
+  // Base vazia: o admin já cai direto na tela de colar a base.
+  if (estado.sessao.perfil === 'ADMIN' && !estado.dados.clientes.length && estado.aba === 'carteira' && !estado.jaAbriuAdmin) {
+    estado.jaAbriuAdmin = true; estado.aba = 'admin'; if (!acessosCache) carregarAcessos();
+  }
   desenharAbas();
   const vistas = { carteira: vistaCarteira, amarelos: vistaAmarelos, evolucao: vistaEvolucao, equipe: vistaEquipe, admin: vistaAdmin };
   const foco = document.activeElement && document.activeElement.id === 'busca' ? 'busca' : null;
@@ -992,7 +1058,9 @@ function vistaCarteira() {
       <div class="contagem">${lista.length} cliente${lista.length === 1 ? '' : 's'}${u.status ? ' em ' + NOME_STATUS[u.status].toLowerCase() + ' · <button class="btn btn-txt" data-status="' + u.status + '" style="min-height:32px;padding:0 6px">mostrar todos</button>' : ''}</div>
     </div>
     <div class="lista">
-      ${pagina.length ? pagina.map(cartaoCliente).join('') : `<div class="vazio"><b>Nenhum cliente aqui</b>${u.busca ? 'Nada encontrado para “' + esc(u.busca) + '”. Confira o nome ou o código.' : 'Troque o filtro de status ou de expurgos para ver outros clientes.'}</div>`}
+      ${!estado.dados.clientes.length ? `<div class="vazio"><b>A base está vazia</b>${s.perfil === 'ADMIN'
+        ? 'Vá em Admin, cole as linhas copiadas da planilha da empresa e toque em “Publicar base”.<div style="margin-top:14px"><button class="btn btn-pri" data-aba="admin">Ir para Admin</button></div>'
+        : 'O administrador ainda não publicou a base de clientes.'}</div>` : pagina.length ? pagina.map(cartaoCliente).join('') : `<div class="vazio"><b>Nenhum cliente aqui</b>${u.busca ? 'Nada encontrado para “' + esc(u.busca) + '”. Confira o nome ou o código.' : 'Troque o filtro de status ou de expurgos para ver outros clientes.'}</div>`}
     </div>
     ${lista.length > pagina.length ? `<div class="mais"><button class="btn btn-sec" data-mais>Mostrar mais ${Math.min(ITENS_POR_PAGINA, lista.length - pagina.length)} de ${lista.length - pagina.length}</button></div>` : ''}
   </div>`;
@@ -1029,7 +1097,7 @@ function graficoLinhas(hist) {
   const max = Math.min(100, Math.ceil(Math.max(10, ...hist.flatMap(h => series.map(s => Number(h[s[0]]) || 0))) / 10) * 10);
   const x = i => m.e + (hist.length === 1 ? (W - m.e - m.d) / 2 : i * (W - m.e - m.d) / (hist.length - 1));
   const y = v => m.t + (H - m.t - m.b) * (1 - v / max);
-  const grades = [0, max / 2, max].map(v => `<line x1="${m.e}" x2="${W - m.d}" y1="${y(v)}" y2="${y(v)}" stroke="#e1e8e3"/><text x="${m.e - 8}" y="${y(v) + 4}" text-anchor="end">${v}%</text>`).join('');
+  const grades = [0, max / 2, max].map(v => `<line x1="${m.e}" x2="${W - m.d}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grade-grafico)"/><text x="${m.e - 8}" y="${y(v) + 4}" text-anchor="end">${v}%</text>`).join('');
   const passo = Math.max(1, Math.ceil(hist.length / 6));
   const rotulos = hist.map((h, i) => (i % passo === 0 || i === hist.length - 1) ? `<text x="${x(i)}" y="${H - 6}" text-anchor="middle">${esc(h.dateLabel)}</text>` : '').join('');
   const linhas = series.map(([k, cor]) => {
@@ -1039,7 +1107,7 @@ function graficoLinhas(hist) {
     const d = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
     const ult = pts[pts.length - 1];
     return `<path class="linha-g desenhar" d="${d}" stroke="${cor}" style="--comp:${Math.ceil(comp) + 2}"/>
-      <circle cx="${ult[0]}" cy="${ult[1]}" r="5" fill="#fff" stroke="${cor}" stroke-width="3"/>`;
+      <circle cx="${ult[0]}" cy="${ult[1]}" r="5" fill="var(--superficie)" stroke="${cor}" stroke-width="3"/>`;
   }).join('');
   return `<svg class="grafico" viewBox="0 0 ${W} ${H}" role="img" aria-label="Evolução diária do giro no mês">${grades}${rotulos}${linhas}</svg>
     <div class="legenda-g">${series.map(([, cor, n]) => `<span style="--c:${cor}"><i></i>${n}</span>`).join('')}</div>`;
@@ -1391,6 +1459,10 @@ document.addEventListener('click', async e => {
   if (d.calc) { $$('[data-calc]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); return; }
   if (b.id === 'vendaCancelar') return fecharFolha();
   if (b.id === 'btnSair') return sair();
+  if (b.id === 'btnTema') {
+    const novo = document.documentElement.dataset.tema === 'escuro' ? 'claro' : 'escuro';
+    gravar('giro_tema', novo); aplicarTema(novo); return;
+  }
   if (b.id === 'pilulaSinc' || b.id === 'btnTentar') { await enviarPendentes(); return carregarDados(); }
   if (d.confirmarAmarelos !== undefined) return acaoAdmin(b, 'confirmarAmarelos', {}, r => r.confirmados + ' saída(s) confirmada(s).', 'Confirmar a saída de todos os clientes em amarelo? O volume informado será somado ao real.');
   if (d.publicar !== undefined) {
@@ -1472,7 +1544,7 @@ irPara = aba => { _irPara(aba); if (aba === 'admin' && !acessosCache) carregarAc
    Responde igual ao Apps Script, para o site funcionar do mesmo jeito.
    ============================================================================= */
 const Demo = (() => {
-  const CHAVE = 'giro_demo_v1';
+  const CHAVE = DEMO_ZERADO ? 'giro_demo_zerado_v1' : 'giro_demo_v1';
   function aleatorio(semente) { return () => { semente |= 0; semente = semente + 0x6D2B79F5 | 0; let t = Math.imul(semente ^ semente >>> 15, 1 | semente); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
   function gerar() {
     const r = aleatorio(20261119);
@@ -1520,7 +1592,12 @@ const Demo = (() => {
       config: { adminPass: 'demo', sellerPassMode: 'SAME_AS_SETOR', sellerSuffix: '01', sellerKeyword: '', supPassMode: 'SAME_AS_MESA', supSuffix: '01', supKeyword: '',
         calcMetricMode: 'ATIVOS', boxFactorHL: 0.0396, lastUpdateLabel: 'Hoje (19/11) às 09:26 · demonstração', dataVersion: '1' }, senhas: [] };
   }
-  let db = ler(CHAVE, null) || gerar();
+  function vazio() {
+    const d = gerar();
+    return Object.assign(d, { clientes: [], historico: [], alertas: [], senhas: [],
+      config: Object.assign(d.config, { lastUpdateLabel: '', dataVersion: '1' }) });
+  }
+  let db = ler(CHAVE, null) || (DEMO_ZERADO ? vazio() : gerar());
   const salvar = () => { db.config.dataVersion = String(Date.now()); gravar(CHAVE, db); };
   const espera = () => new Promise(r => setTimeout(r, 220 + Math.random() * 280));
   const senhaDe = (perfil, codigo) => {
@@ -1588,6 +1665,11 @@ const Demo = (() => {
         if (!b.substituirTudo) db.clientes.forEach(c => { if (!b.linhas.some(l => l.idCliente === c.idCliente)) novos.push(c); });
         db.clientes = novos;
         const validos = novos.filter(c => c.expurgado !== 'SIM').length;
+        const val = novos.filter(c => c.expurgado !== 'SIM');
+        const soma = l => l.reduce((a, c) => a + (parseInt(c.ativos, 10) || 1), 0), tot = soma(val) || 1;
+        const pz = soma(val.filter(c => c.statusGiro === 'GIRO ZERO')) / tot * 100, pe = soma(val.filter(c => c.statusGiro === 'GIRO EFICIENTE')) / tot * 100;
+        const rot = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+        db.historico = db.historico.filter(h => h.dateLabel !== rot).concat([{ dateLabel: rot, zeroPct: +pz.toFixed(2), eficPct: +pe.toFixed(2), baixoPct: +(100 - pz - pe).toFixed(2) }]).slice(-35);
         db.config.lastUpdateLabel = b.carimbo || 'Hoje às ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) + ' (' + validos + ' válidos • ' + (novos.length - validos) + ' expurgos)';
         salvar(); return { ok: true, total: novos.length, validos, sairamDoZero };
       }
@@ -1606,7 +1688,7 @@ const Demo = (() => {
     }
     return { ok: false, erro: 'Ação desconhecida.' };
   }
-  return { chamar, reiniciar: () => { localStorage.removeItem(CHAVE); db = gerar(); } };
+  return { chamar, reiniciar: () => { localStorage.removeItem(CHAVE); db = DEMO_ZERADO ? vazio() : gerar(); } };
 })();
 
 /* ============================== INÍCIO ============================== */
