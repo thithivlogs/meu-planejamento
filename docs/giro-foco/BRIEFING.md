@@ -48,12 +48,25 @@ Arquivos: `docs/giro-foco/codigo-atual/Codigo-apps-script.gs` (Apps Script) e `a
 - Correção: **uma linha por cliente** numa aba própria (ex.: `Clientes`), configurações numa aba `Config`
   (chave/valor) e um registro de alterações (`Log`: quem, quando, o quê). Usar `LockService` e gravação em lote.
 - Lançamentos feitos pelos usuários (venda informada, caixas, observação, saída confirmada) **nunca podem se perder**
-  quando a base for reimportada: mesclar por `idCliente` + `mes`.
+  quando a base for reimportada: mesclar por `idCliente` (o app antigo também usa só o `idCliente`; o mês vem na base).
 - Migrar sem perder nada do que já existe; manter a planilha **a mesma** (só adicionar abas).
 - Testar: salvar → recarregar → conferir que todos os clientes voltaram.
 - Cada ação grava **só o que mudou** (ex.: venda de um cliente), nunca o estado inteiro; o servidor mescla.
 - Confirmar o resultado do salvamento (sem `no-cors`) e avisar de verdade quando falhar; atualizar a tela periodicamente.
 - Tirar senha e dados do HTML publicado; o site busca os dados no Apps Script depois do acesso, e só os da mesa/setor.
+
+### 2.1 Status (19/11/2026)
+
+- **Feito:** nova nuvem em `giro-foco/apps-script/Codigo.gs` (abas Clientes/Config/Senhas/Historico/Alertas/Log,
+  gravação por cliente com `LockService`, acesso por token assinado, recorte por setor/mesa, registro no Log).
+- Testes: `node --test giro-foco/testes/*.test.js` (simulador do Apps Script em `giro-foco/testes/`).
+  Com a cópia real do estado antigo (só local, nunca versionar): 643 clientes migrados, 0 diferenças.
+- Instalação passo a passo para o usuário: `giro-foco/INSTALAR-NUVEM.md` (implantação de TESTE separada;
+  a implantação oficial continua na versão antiga até a troca; no dia da troca rodar `migrarDadosAntigosForcando`).
+- API (POST, corpo JSON em `text/plain`, sem `no-cors`): `entrar`, `dados` (com `desde` para atualização leve),
+  `informarVenda`, `limparAmarelo`, e para admin `confirmarAmarelos`, `importarBase`, `salvarCliente`,
+  `excluirCliente`, `salvarConfig`, `listarAcessos`, `definirSenha`, `novoCiclo`.
+- **Próximo:** URL `/exec` da implantação de teste (o usuário envia) → site novo (seções 4 e 5).
 
 ## 3. Acesso (sem login de plataforma)
 
@@ -62,7 +75,8 @@ Arquivos: `docs/giro-foco/codigo-atual/Codigo-apps-script.gs` (Apps Script) e `a
   - **Supervisor:** número da mesa.
   - **Administrador:** senha de admin (guardada **somente na planilha** — nunca escrever em arquivos deste repositório, que é público).
 - Senhas: padrão automático **ou** individual, configurável pelo admin:
-  - Padrão sugerido pelo usuário: código + sequência (ex.: setor `123` → `12301`; o próximo → `12302` …). Confirmar a regra exata com o usuário.
+  - Confirmado pelo usuário: o admin escolhe entre **igual ao número** (15623) e **número + final** (1562301).
+    Implementado como `SAME_AS_SETOR`/`SAME_AS_MESA`, `CODE_PLUS_SUFFIX` (final configurável, padrão `01`) e `CUSTOM_KEYWORD`.
   - O admin pode trocar a senha de qualquer pessoa individualmente.
   - Já existem modos no app atual (`SAME_AS_SETOR`, `SAME_AS_MESA`, palavra-chave) — preservar e ampliar.
 - Senhas não devem ficar legíveis para quem só abre o site (não mandar a lista de senhas para o navegador; validar no Apps Script).
