@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#06331c">
+<title>Giro Foco · CDA Benevides</title>
+<!--
+  GIRO FOCO — site (versão 2)
+  ============================================================================
+  Arquivo único: cole tudo no bloco "Incorporar → Código" do Google Sites.
+  Para ligar na planilha, preencha URL_NUVEM logo abaixo (procure por "CONFIGURAÇÃO").
+  Sem URL, o site abre em MODO DEMONSTRAÇÃO com dados fictícios guardados só neste aparelho.
+-->
+<style>
+/* ============================== CORES E MEDIDAS ============================== */
+:root {
+  --verde-950: #04261a;
+  --verde-900: #06331c;
+  --verde-800: #0a4a29;
+  --verde-700: #006633;
+  --verde-600: #008240;
+  --verde-200: #bfe3cc;
+  --verde-100: #e1f2e7;
+  --verde-50: #f1f8f3;
+  --estrela: #e30613;
+
+  --zero: #c8102e;        --zero-texto: #a50d26;  --zero-fundo: #fdecee;
+  --baixo: #e8590c;       --baixo-texto: #a8420a; --baixo-fundo: #fff0e5;
+  --efic: #008240;        --efic-texto: #006633;  --efic-fundo: #e1f2e7;
+  --amarelo: #f2b705;     --amarelo-texto: #7a5900; --amarelo-fundo: #fff7d6;
+
+  --tinta: #12201a;
+  --tinta-2: #3d4d44;
+  --tinta-3: #5f6f66;
+  --linha: #d9e3dc;
+  --linha-forte: #bccbc1;
+  --fundo: #eef3f0;
+  --superficie: #ffffff;
+  --superficie-2: #f6f9f7;
+
+  --raio: 14px;
+  --raio-p: 10px;
+  --sombra-1: 0 1px 2px rgba(6, 51, 28, .06), 0 2px 6px rgba(6, 51, 28, .05);
+  --sombra-2: 0 6px 16px -4px rgba(6, 51, 28, .16), 0 2px 4px rgba(6, 51, 28, .06);
+  --sombra-3: 0 24px 48px -12px rgba(4, 38, 26, .35);
+  --saida: cubic-bezier(.16, 1, .3, 1);
+  --fonte: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --nav-alt: 64px;
+}
+
+/* ============================== BASE ============================== */
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; font-family: var(--fonte); font-size: 16px; line-height: 1.45; color: var(--tinta);
+  background: var(--fundo); -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none;
+  font-variant-numeric: tabular-nums;
+}
+::selection { background: var(--verde-200); color: var(--verde-950); }
+input, textarea, select, button { font: inherit; color: inherit; caret-color: var(--verde-600); }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--verde-600); outline-offset: 2px; border-radius: 6px; }
+* { scrollbar-width: thin; scrollbar-color: var(--linha-forte) transparent; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: var(--linha-forte); border-radius: 8px; }
+[hidden], .oculto { display: none !important; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+svg.ic { width: 20px; height: 20px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ============================== BOTÕES E CAMPOS ============================== */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 18px;
+  border-radius: 12px; border: 1px solid transparent; font-weight: 650; letter-spacing: -.005em;
+  transition: transform .12s ease, background-color .15s ease, box-shadow .15s ease, opacity .15s;
+  user-select: none; -webkit-user-select: none; touch-action: manipulation;
+}
+.btn:active:not(:disabled) { transform: scale(.97); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn-pri { background: var(--verde-600); color: #fff; box-shadow: 0 1px 0 rgba(255,255,255,.18) inset, 0 4px 12px -4px rgba(0,102,51,.55); }
+.btn-pri:hover:not(:disabled) { background: var(--verde-700); }
+.btn-sec { background: var(--superficie); color: var(--verde-800); border-color: var(--linha-forte); }
+.btn-sec:hover:not(:disabled) { background: var(--verde-50); }
+.btn-txt { background: transparent; color: var(--verde-700); min-height: 40px; padding: 0 10px; }
+.btn-txt:hover { background: var(--verde-50); }
+.btn-perigo { background: var(--superficie); color: var(--zero-texto); border-color: #f2b8c0; }
+.btn-perigo:hover { background: var(--zero-fundo); }
+.btn-bloco { width: 100%; }
+.btn .giro { width: 18px; height: 18px; border: 2.5px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: girar .7s linear infinite; }
+@keyframes girar { to { transform: rotate(360deg); } }
+
+.campo { display: grid; gap: 6px; }
+.campo > span { font-size: 14px; font-weight: 600; color: var(--tinta-2); }
+.entrada {
+  width: 100%; min-height: 50px; padding: 0 14px; border: 1.5px solid var(--linha-forte); border-radius: 12px;
+  background: var(--superficie); font-size: 17px; transition: border-color .15s, box-shadow .15s;
+}
+textarea.entrada { padding: 12px 14px; min-height: 92px; resize: vertical; line-height: 1.4; }
+.entrada:focus { outline: none; border-color: var(--verde-600); box-shadow: 0 0 0 4px rgba(0,130,64,.16); }
+.entrada::placeholder { color: #5f6f66; }
+select.entrada { appearance: none; padding-right: 40px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='%233d4d44' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 8 4 4 4-4'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+
+.segmentado { display: flex; padding: 4px; gap: 4px; background: var(--superficie-2); border: 1px solid var(--linha); border-radius: 14px; }
+.segmentado button {
+  flex: 1; min-height: 42px; border: 0; border-radius: 10px; background: transparent; font-weight: 600; color: var(--tinta-2);
+  font-size: 15px; transition: background-color .18s, color .18s, box-shadow .18s; padding: 0 8px;
+}
+.segmentado button[aria-pressed="true"] { background: var(--superficie); color: var(--verde-800); box-shadow: var(--sombra-1), 0 0 0 1px var(--linha); }
+
+/* ============================== ENTRAR ============================== */
+.entrar {
+  min-height: 100dvh; display: grid; grid-template-rows: auto 1fr; background:
+    radial-gradient(120% 70% at 85% -10%, #0d6b3a 0%, transparent 60%),
+    linear-gradient(170deg, var(--verde-900) 0%, var(--verde-950) 55%);
+  color: #fff; padding: max(28px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom));
+}
+.marca { display: flex; align-items: center; gap: 12px; max-width: 440px; width: 100%; margin: 0 auto; }
+.marca .estrela { width: 40px; height: 40px; filter: drop-shadow(0 4px 10px rgba(227,6,19,.45)); }
+.marca b { display: block; font-size: 22px; letter-spacing: -.02em; line-height: 1.1; }
+.marca small { display: block; font-size: 13px; color: #bfe3cc; letter-spacing: .02em; }
+.entrar-corpo { width: 100%; max-width: 440px; margin: 0 auto; align-self: center; padding: 24px 0; }
+.entrar h1 { font-size: 30px; line-height: 1.12; letter-spacing: -.025em; margin: 0 0 8px; font-weight: 750; }
+.entrar p.sub { margin: 0 0 22px; color: #cfe8d8; font-size: 16px; }
+.cartao-entrar { background: var(--superficie); color: var(--tinta); border-radius: 20px; padding: 18px; box-shadow: var(--sombra-3); display: grid; gap: 16px; }
+.erro-msg { background: var(--zero-fundo); color: var(--zero-texto); border: 1px solid #f2b8c0; padding: 10px 12px; border-radius: 10px; font-size: 15px; font-weight: 550; }
+.dica-demo { margin-top: 16px; font-size: 14px; color: #cfe8d8; line-height: 1.5; }
+.dica-demo code { background: rgba(255,255,255,.12); padding: 1px 6px; border-radius: 6px; font-family: inherit; font-weight: 650; color: #fff; }
+.lembrar { display: flex; align-items: center; gap: 10px; font-size: 15px; color: var(--tinta-2); }
+.lembrar input { width: 20px; height: 20px; accent-color: var(--verde-600); }
+
+/* ============================== ESTRUTURA DO APP ============================== */
+.topo {
+  position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 10px;
+  padding: max(10px, env(safe-area-inset-top)) 14px 10px; background: var(--verde-900); color: #fff;
+  box-shadow: 0 6px 18px -10px rgba(4,38,26,.6);
+}
+.topo .estrela { width: 28px; height: 28px; flex: none; }
+.topo-txt { min-width: 0; flex: 1; }
+.topo-txt b { display: block; font-size: 17px; letter-spacing: -.01em; line-height: 1.15; }
+.topo-txt span { display: block; font-size: 13px; color: #bfe3cc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pilula-sinc {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border-radius: 999px; border: 0;
+  background: rgba(255,255,255,.1); color: #e1f2e7; font-size: 13px; font-weight: 600; white-space: nowrap;
+}
+.pilula-sinc i { width: 8px; height: 8px; border-radius: 50%; background: #5fd18e; flex: none; }
+.pilula-sinc[data-estado="salvando"] i { background: #ffd54a; animation: pulsar 1s ease-in-out infinite; }
+.pilula-sinc[data-estado="pendente"] i, .pilula-sinc[data-estado="erro"] i { background: #ff7a7a; }
+.pilula-sinc[data-estado="pendente"], .pilula-sinc[data-estado="erro"] { background: rgba(255,122,122,.18); color: #fff; }
+@keyframes pulsar { 50% { opacity: .35; } }
+.btn-icone { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 12px; border: 0; background: transparent; color: inherit; flex: none; }
+.btn-icone:hover { background: rgba(255,255,255,.1); }
+.faixa-demo { background: var(--amarelo-fundo); color: var(--amarelo-texto); font-size: 13px; font-weight: 600; padding: 7px 14px; text-align: center; border-bottom: 1px solid #f0dc8c; }
+
+main { padding: 16px 14px calc(var(--nav-alt) + 28px + env(safe-area-inset-bottom)); max-width: 1180px; margin: 0 auto; }
+.vista { display: grid; gap: 16px; animation: entrarVista .22s var(--saida); }
+@keyframes entrarVista { from { opacity: 0; transform: translateY(6px); } }
+.cab-vista { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.cab-vista h2 { margin: 0; font-size: 24px; letter-spacing: -.02em; line-height: 1.15; }
+.cab-vista p { margin: 2px 0 0; color: var(--tinta-3); font-size: 15px; }
+
+.painel { background: var(--superficie); border-radius: var(--raio); box-shadow: var(--sombra-1); padding: 16px; }
+.painel h3 { margin: 0 0 4px; font-size: 18px; letter-spacing: -.01em; }
+.painel .nota { margin: 0 0 14px; color: var(--tinta-3); font-size: 14px; }
+
+.abas {
+  position: fixed; z-index: 30; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-around;
+  background: rgba(255,255,255,.96); backdrop-filter: saturate(1.4) blur(12px); -webkit-backdrop-filter: saturate(1.4) blur(12px);
+  border-top: 1px solid var(--linha); padding: 6px 4px max(6px, env(safe-area-inset-bottom));
+}
+.abas button {
+  position: relative; flex: 1; max-width: 120px; min-height: 52px; display: grid; justify-items: center; align-content: center; gap: 2px;
+  border: 0; background: transparent; color: var(--tinta-3); font-size: 12px; font-weight: 600; border-radius: 12px;
+}
+.abas button[aria-current="page"] { color: var(--verde-700); }
+.abas button[aria-current="page"] svg { stroke-width: 2.3; }
+.abas button[aria-current="page"]::before { content: ""; position: absolute; top: 2px; width: 36px; height: 30px; border-radius: 10px; background: var(--verde-100); z-index: -1; }
+.abas .selo { position: absolute; top: 2px; left: calc(50% + 6px); min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--amarelo); color: #3a2a00; font-size: 11px; font-weight: 750; display: grid; place-items: center; }
+
+/* ============================== BARRA 3D DO GIRO ============================== */
+.giro3d { padding: 20px 16px 16px; background: linear-gradient(180deg, var(--superficie) 0%, var(--superficie-2) 100%); border-radius: 18px; box-shadow: var(--sombra-2); overflow: hidden; }
+.giro3d-palco { perspective: 700px; perspective-origin: 50% -40%; padding: 26px 8px 18px; }
+.giro3d-barra {
+  display: flex; gap: 3px; height: 54px; transform-style: preserve-3d;
+  transform: rotateX(-26deg) rotateY(var(--giro-y, 0deg)); transition: transform .5s var(--saida);
+}
+.seg {
+  position: relative; flex: var(--peso, 1) 1 0; min-width: 30px; border: 0; padding: 0; border-radius: 6px;
+  background: var(--cor); transform-origin: left center; transform-style: preserve-3d;
+  box-shadow: 0 14px 16px -10px var(--sombra-cor);
+  transition: flex-grow .6s var(--saida), filter .2s, opacity .2s;
+}
+.seg::before { /* face de cima */
+  content: ""; position: absolute; left: 0; right: 0; top: 1px; height: 22px; border-radius: 4px 4px 0 0;
+  background: var(--cor-topo); transform-origin: top center; transform: rotateX(-90deg);
+}
+.seg::after { /* brilho */
+  content: ""; position: absolute; inset: 0; border-radius: 6px; background: linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,0) 55%);
+}
+.seg[data-s="GIRO ZERO"] { --cor: var(--zero); --cor-topo: #e8475f; --sombra-cor: rgba(200,16,46,.55); }
+.seg[data-s="BAIXO DESEMPENHO"] { --cor: var(--baixo); --cor-topo: #ff8a45; --sombra-cor: rgba(232,89,12,.5); }
+.seg[data-s="GIRO EFICIENTE"] { --cor: var(--efic); --cor-topo: #2fb36a; --sombra-cor: rgba(0,130,64,.5); }
+.giro3d.filtrando .seg:not([aria-pressed="true"]) { opacity: .35; filter: saturate(.4); }
+.giro3d .entrada-anim .seg { animation: crescer .9s var(--saida) both; animation-delay: calc(var(--i) * 70ms); }
+@keyframes crescer { from { transform: scaleX(0); } }
+.giro3d-legenda { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.giro3d-legenda button {
+  text-align: left; border: 1px solid transparent; background: transparent; border-radius: 12px; padding: 8px 8px 6px; min-height: 64px;
+  transition: background-color .15s, border-color .15s;
+}
+.giro3d-legenda button:hover { background: var(--superficie); border-color: var(--linha); }
+.giro3d-legenda button[aria-pressed="true"] { background: var(--superficie); border-color: var(--linha-forte); box-shadow: var(--sombra-1); }
+.giro3d-legenda .rot { display: flex; align-items: flex-start; gap: 6px; font-size: 13px; font-weight: 650; color: var(--tinta-2); min-height: 2.5em; line-height: 1.25; }
+.giro3d-legenda .rot i { width: 10px; height: 10px; border-radius: 3px; background: var(--c); flex: none; margin-top: 3px; }
+.giro3d-legenda .pct { display: block; font-size: 26px; font-weight: 750; letter-spacing: -.02em; line-height: 1.1; color: var(--ct); margin-top: 2px; }
+.giro3d-legenda .det { display: block; font-size: 12.5px; color: var(--tinta-3); }
+.giro3d-resumo { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--linha); font-size: 15px; color: var(--tinta-2); }
+.giro3d-resumo b { color: var(--tinta); }
+.giro3d-titulo { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.giro3d-titulo h3 { margin: 0; font-size: 17px; }
+.giro3d-titulo span { font-size: 13px; color: var(--tinta-3); }
+
+/* ============================== FERRAMENTAS DA LISTA ============================== */
+.ferramentas { display: grid; gap: 10px; }
+.busca { position: relative; }
+.busca svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--tinta-3); pointer-events: none; }
+.busca .entrada { padding-left: 44px; }
+.linha-filtros { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.linha-filtros::-webkit-scrollbar { display: none; }
+.linha-filtros .segmentado button { white-space: nowrap; flex: none; padding: 0 12px; }
+.vista > *, .grade-2 > * { min-width: 0; }
+.chip {
+  flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border-radius: 999px;
+  border: 1px solid var(--linha-forte); background: var(--superficie); font-size: 14px; font-weight: 600; color: var(--tinta-2); white-space: nowrap;
+}
+.chip[aria-pressed="true"] { background: var(--verde-800); border-color: var(--verde-800); color: #fff; }
+.chip select { border: 0; background: transparent; font-weight: 650; color: inherit; padding: 0 2px; }
+.contagem { font-size: 14px; color: var(--tinta-3); }
+
+/* ============================== CLIENTES ============================== */
+.lista { display: grid; gap: 10px; }
+.cli {
+  background: var(--superficie); border-radius: var(--raio); box-shadow: var(--sombra-1); padding: 14px; display: grid; gap: 10px;
+  border: 1px solid transparent; transition: box-shadow .2s, transform .2s var(--saida);
+}
+.cli.amarelo { background: linear-gradient(180deg, var(--amarelo-fundo), var(--superficie) 70%); border-color: #f0dc8c; }
+.cli-topo { display: flex; align-items: flex-start; gap: 10px; }
+.cli-nome { flex: 1; min-width: 0; }
+.cli-nome b { display: block; font-size: 17px; line-height: 1.25; letter-spacing: -.01em; overflow-wrap: anywhere; }
+.cli-nome span { display: block; font-size: 13.5px; color: var(--tinta-3); margin-top: 2px; overflow-wrap: anywhere; }
+.selo-status { flex: none; display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 8px; font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+.selo-status i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.selo-status[data-s="GIRO ZERO"] { background: var(--zero-fundo); color: var(--zero-texto); }
+.selo-status[data-s="BAIXO DESEMPENHO"] { background: var(--baixo-fundo); color: var(--baixo-texto); }
+.selo-status[data-s="GIRO EFICIENTE"] { background: var(--efic-fundo); color: var(--efic-texto); }
+.etiquetas { display: flex; flex-wrap: wrap; gap: 6px; }
+.etq { font-size: 12.5px; font-weight: 650; padding: 3px 8px; border-radius: 7px; background: var(--superficie-2); color: var(--tinta-2); border: 1px solid var(--linha); display: inline-flex; gap: 4px; align-items: center; }
+.etq svg.ic { width: 14px; height: 14px; }
+.etq.ok { background: var(--efic-fundo); color: var(--efic-texto); border-color: var(--verde-200); }
+.etq.exp { background: #f1f1f4; color: #4b4b57; }
+.medidor { display: grid; gap: 6px; }
+.medidor-num { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; color: var(--tinta-2); }
+.medidor-num b { color: var(--tinta); font-size: 15px; }
+.medidor-trilho { position: relative; height: 10px; border-radius: 6px; background: #e6ece8; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,.08); }
+.medidor-trilho i { position: absolute; inset: 0 auto 0 0; border-radius: 6px; background: var(--c); }
+.medidor-trilho em { position: absolute; top: 0; bottom: 0; border-radius: 6px; background: repeating-linear-gradient(-45deg, var(--amarelo) 0 5px, #ffe27a 5px 10px); }
+.cli-acoes { display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.aviso-amarelo { font-size: 14px; color: var(--amarelo-texto); font-weight: 600; display: flex; gap: 6px; align-items: center; flex: 1; min-width: 180px; }
+.cli-acoes .btn { min-height: 44px; }
+.mais { display: flex; justify-content: center; padding: 6px 0; }
+.vazio { text-align: center; padding: 32px 18px; color: var(--tinta-3); background: var(--superficie); border-radius: var(--raio); border: 1.5px dashed var(--linha-forte); }
+.vazio b { display: block; color: var(--tinta); font-size: 17px; margin-bottom: 4px; }
+.esqueleto { height: 132px; border-radius: var(--raio); background: linear-gradient(90deg, #e6ece8 0%, #f3f6f4 50%, #e6ece8 100%); background-size: 200% 100%; animation: brilho 1.2s ease-in-out infinite; }
+@keyframes brilho { to { background-position: -200% 0; } }
+
+/* ============================== FOLHA (informar venda) ============================== */
+dialog.folha {
+  border: 0; padding: 0; margin: auto auto 0; width: 100%; max-width: 560px; max-height: 92dvh; border-radius: 22px 22px 0 0;
+  background: var(--superficie); color: var(--tinta); box-shadow: var(--sombra-3); overflow: auto;
+}
+dialog.folha::backdrop { background: rgba(4, 38, 26, .5); backdrop-filter: blur(2px); }
+dialog.folha[open] { animation: subir .32s var(--saida); }
+dialog.folha.fechando { animation: descer .2s ease-in forwards; }
+dialog.folha.fechando::backdrop { opacity: 0; transition: opacity .2s; }
+@keyframes subir { from { transform: translateY(100%); } }
+@keyframes descer { to { transform: translateY(100%); } }
+.folha-alca { display: flex; justify-content: center; padding: 10px 0 4px; touch-action: none; cursor: grab; }
+.folha-alca i { width: 44px; height: 5px; border-radius: 3px; background: var(--linha-forte); }
+.folha-corpo { padding: 4px 18px max(18px, env(safe-area-inset-bottom)); display: grid; gap: 16px; }
+.folha h2 { margin: 0; font-size: 20px; letter-spacing: -.015em; }
+.folha .sub { margin: 2px 0 0; color: var(--tinta-3); font-size: 14px; }
+.passo { display: grid; grid-template-columns: 56px 1fr 56px; gap: 8px; align-items: center; }
+.passo button { height: 56px; border-radius: 14px; border: 1px solid var(--linha-forte); background: var(--superficie-2); font-size: 26px; font-weight: 600; color: var(--verde-800); }
+.passo button:active { transform: scale(.95); }
+.passo input { text-align: center; font-size: 28px; font-weight: 750; min-height: 56px; }
+.rapidos { display: flex; gap: 8px; flex-wrap: wrap; }
+.previa { background: var(--superficie-2); border: 1px solid var(--linha); border-radius: 12px; padding: 12px; font-size: 15px; color: var(--tinta-2); display: grid; gap: 8px; }
+.previa b { color: var(--tinta); }
+.previa .bate { color: var(--efic-texto); font-weight: 700; display: flex; gap: 6px; align-items: center; }
+
+/* ============================== GRÁFICOS ============================== */
+.grade-2 { display: grid; gap: 16px; }
+.numeros { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.numero { background: var(--superficie-2); border: 1px solid var(--linha); border-radius: 12px; padding: 12px; }
+.numero span { display: block; font-size: 13px; font-weight: 600; color: var(--tinta-3); }
+.numero b { display: block; font-size: 24px; letter-spacing: -.02em; margin-top: 2px; }
+.numero small { display: block; font-size: 12.5px; color: var(--tinta-3); }
+.numero.bom b { color: var(--efic-texto); }
+.numero.ruim b { color: var(--zero-texto); }
+.grafico { width: 100%; height: auto; display: block; overflow: visible; }
+.grafico text { font-family: var(--fonte); font-size: 12px; fill: var(--tinta-3); }
+.grafico .linha-g { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.grafico .desenhar { stroke-dasharray: var(--comp); stroke-dashoffset: var(--comp); animation: desenhar 1.1s var(--saida) forwards; }
+@keyframes desenhar { to { stroke-dashoffset: 0; } }
+.legenda-g { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13.5px; color: var(--tinta-2); margin-top: 8px; }
+.legenda-g span { display: inline-flex; align-items: center; gap: 6px; }
+.legenda-g i { width: 14px; height: 4px; border-radius: 2px; background: var(--c); }
+.ritmo { margin-top: 12px; padding: 12px; border-radius: 12px; background: var(--verde-50); border: 1px solid var(--verde-200); font-size: 15px; color: var(--verde-900); }
+
+.ranking { display: grid; gap: 4px; }
+.rank-item {
+  display: grid; grid-template-columns: 28px 1fr auto; gap: 4px 10px; align-items: center; padding: 10px 8px; border-radius: 12px;
+  border: 0; background: transparent; text-align: left; width: 100%; transition: background-color .15s;
+}
+.rank-item:hover { background: var(--superficie-2); }
+.rank-pos { font-weight: 750; color: var(--tinta-3); font-size: 15px; text-align: center; }
+.rank-nome { min-width: 0; }
+.rank-nome b { display: block; font-size: 15.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rank-nome span { display: block; font-size: 12.5px; color: var(--tinta-3); }
+.rank-val { text-align: right; font-size: 15px; font-weight: 750; color: var(--zero-texto); }
+.rank-val small { display: block; font-size: 12px; color: var(--tinta-3); font-weight: 550; }
+.pilha { grid-column: 2 / 4; display: flex; height: 12px; border-radius: 6px; overflow: hidden; background: #e6ece8; }
+.pilha i { display: block; height: 100%; background: var(--c); transition: width .6s var(--saida); }
+.pilha i + i { box-shadow: -1px 0 0 #fff; }
+
+/* ============================== ADMINISTRAÇÃO ============================== */
+.opcoes { display: grid; gap: 8px; }
+.opcao { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--linha); border-radius: 12px; background: var(--superficie); min-height: 52px; flex-wrap: wrap; }
+.opcao:has(input:checked) { border-color: var(--verde-600); background: var(--verde-50); }
+.opcao input[type="radio"] { width: 20px; height: 20px; accent-color: var(--verde-600); margin: 0; }
+.opcao label { font-weight: 600; flex: 1; min-width: 160px; }
+.opcao label small { display: block; font-weight: 500; color: var(--tinta-3); font-size: 13px; }
+.opcao .entrada { width: 110px; min-height: 42px; font-size: 16px; }
+.pilha-form { display: grid; gap: 14px; }
+.tabela { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+.tabela th { text-align: left; font-size: 12.5px; color: var(--tinta-3); font-weight: 650; padding: 8px 6px; border-bottom: 1px solid var(--linha); position: sticky; top: 0; background: var(--superficie); }
+.tabela td { padding: 8px 6px; border-bottom: 1px solid var(--linha); vertical-align: middle; }
+.tabela .entrada { min-height: 40px; font-size: 15px; width: 120px; }
+.rolagem { max-height: 420px; overflow: auto; border: 1px solid var(--linha); border-radius: 12px; }
+.alerta-linha { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--linha); font-size: 14.5px; }
+.alerta-linha:last-child { border-bottom: 0; }
+.alerta-linha small { color: var(--tinta-3); display: block; }
+
+/* ============================== AVISOS (toast) ============================== */
+.avisos { position: fixed; z-index: 60; left: 12px; right: 12px; bottom: calc(var(--nav-alt) + 18px + env(safe-area-inset-bottom)); display: grid; gap: 8px; justify-items: center; pointer-events: none; }
+.aviso {
+  pointer-events: auto; max-width: 480px; width: 100%; background: var(--verde-950); color: #fff; padding: 12px 14px; border-radius: 14px;
+  box-shadow: var(--sombra-3); font-size: 15px; display: flex; gap: 10px; align-items: center; animation: avisoEntra .28s var(--saida);
+}
+.aviso.erro { background: #5c0a16; }
+.aviso.sai { animation: avisoSai .2s ease-in forwards; }
+@keyframes avisoEntra { from { opacity: 0; transform: translateY(12px) scale(.98); } }
+@keyframes avisoSai { to { opacity: 0; transform: translateY(8px); } }
+
+/* ============================== COMPUTADOR ============================== */
+@media (min-width: 900px) {
+  :root { --nav-alt: 0px; }
+  .app { display: grid; grid-template-columns: 220px 1fr; min-height: 100dvh; }
+  .topo { grid-column: 1 / -1; padding: 12px 24px; }
+  .abas {
+    position: sticky; top: 64px; align-self: start; flex-direction: column; justify-content: flex-start; gap: 4px; height: calc(100dvh - 64px);
+    background: transparent; backdrop-filter: none; border-top: 0; border-right: 1px solid var(--linha); padding: 16px 12px;
+  }
+  .abas button { flex: none; max-width: none; grid-auto-flow: column; justify-content: start; gap: 12px; font-size: 15px; min-height: 48px; padding: 0 14px; }
+  .abas button[aria-current="page"] { background: var(--verde-100); }
+  .abas button[aria-current="page"]::before { display: none; }
+  .abas .selo { position: static; margin-left: auto; }
+  main { padding: 24px 28px 48px; width: 100%; }
+  .avisos { bottom: 24px; left: auto; right: 24px; justify-items: end; }
+  .lista { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grade-2 { grid-template-columns: 1fr 1fr; align-items: start; }
+  .numeros { grid-template-columns: repeat(4, 1fr); }
+  dialog.folha { margin: auto; border-radius: 22px; }
+  dialog.folha[open] { animation: aparecer .24s var(--saida); }
+  @keyframes aparecer { from { opacity: 0; transform: translateY(12px) scale(.98); } }
+  .folha-alca { display: none; }
+  .folha-corpo { padding-top: 20px; }
+  .entrar { grid-template-rows: auto 1fr; padding: 40px; }
+}
+@media (min-width: 1200px) { .lista { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+/* Modo apresentação (reunião / TV) */
+body.apresentacao .abas, body.apresentacao .faixa-demo { display: none; }
+body.apresentacao main { max-width: none; padding: 28px 40px; font-size: 18px; }
+body.apresentacao .app { grid-template-columns: 1fr; }
+body.apresentacao .cab-vista h2 { font-size: 34px; }
+body.apresentacao .numero b { font-size: 34px; }
+body.apresentacao .rank-nome b { font-size: 19px; }
+body.apresentacao .pilha { height: 18px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-delay: 0ms !important; transition-duration: .001ms !important; }
+  .giro3d-barra { transform: rotateX(-26deg) !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- Ícones (desenhados com o mesmo traço) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-estrela" viewBox="0 0 24 24"><path d="M12 1.8l2.95 6.6 7.2.7-5.43 4.8 1.6 7.07L12 17.3 5.68 20.97l1.6-7.07L1.85 9.1l7.2-.7L12 1.8z" fill="#e30613" stroke="#ff4d58" stroke-width=".6"/></symbol>
+    <symbol id="i-carteira" viewBox="0 0 24 24"><path d="M4 7h16v12H4z"/><path d="M8 7V5h8v2"/><path d="M4 12h16"/></symbol>
+    <symbol id="i-amarelo" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+    <symbol id="i-evolucao" viewBox="0 0 24 24"><path d="M4 19h16"/><path d="M5 15l4-4 3 3 6-7"/><path d="M14 7h4v4"/></symbol>
+    <symbol id="i-equipe" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 19c.6-3.2 3-5 6-5s5.4 1.8 6 5"/><path d="M16 11a2.8 2.8 0 1 0 0-5.6"/><path d="M18 14c1.6.6 2.7 2.2 3 5"/></symbol>
+    <symbol id="i-admin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.6 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+    <symbol id="i-busca" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></symbol>
+    <symbol id="i-sair" viewBox="0 0 24 24"><path d="M15 4h4v16h-4"/><path d="M10 8l-4 4 4 4"/><path d="M6 12h10"/></symbol>
+    <symbol id="i-atualizar" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.3-4.6L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.3 4.6L20 16"/><path d="M20 20v-4h-4"/></symbol>
+    <symbol id="i-caixa" viewBox="0 0 24 24"><path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5"/><path d="M12 12v9"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-tela" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></symbol>
+    <symbol id="i-alerta" viewBox="0 0 24 24"><path d="M12 3 2.5 20h19z"/><path d="M12 10v4M12 17h.01"/></symbol>
+    <symbol id="i-sino" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></symbol>
+  </defs>
+</svg>
+
+<!-- ============================== TELA DE ENTRADA ============================== -->
+<section class="entrar" id="telaEntrar" hidden>
+  <div class="marca">
+    <svg class="estrela"><use href="#i-estrela"/></svg>
+    <div><b>Giro Foco</b><small>The Heineken Company · CDA Benevides</small></div>
+  </div>
+  <div class="entrar-corpo">
+    <h1>Bom trabalho hoje.</h1>
+    <p class="sub">Escolha seu perfil e entre com o número e a senha.</p>
+    <form class="cartao-entrar" id="formEntrar" novalidate>
+      <div class="segmentado" role="group" aria-label="Perfil">
+        <button type="button" data-perfil="VENDEDOR" aria-pressed="true">Vendedor</button>
+        <button type="button" data-perfil="SUPERVISOR" aria-pressed="false">Supervisor</button>
+        <button type="button" data-perfil="ADMIN" aria-pressed="false">Admin</button>
+      </div>
+      <label class="campo" id="campoCodigo">
+        <span id="rotCodigo">Número do setor</span>
+        <input class="entrada" id="entCodigo" inputmode="numeric" autocomplete="username" placeholder="Ex.: 15623" enterkeyhint="next">
+      </label>
+      <label class="campo">
+        <span>Senha</span>
+        <input class="entrada" id="entSenha" type="password" autocomplete="current-password" placeholder="Sua senha" enterkeyhint="go">
+      </label>
+      <label class="lembrar"><input type="checkbox" id="entLembrar" checked> Manter conectado neste celular</label>
+      <div class="erro-msg oculto" id="entErro" role="alert"></div>
+      <button class="btn btn-pri btn-bloco" id="btnEntrar" type="submit">Entrar</button>
+    </form>
+    <p class="dica-demo oculto" id="dicaDemo"></p>
+  </div>
+</section>
+
+<!-- ============================== APLICATIVO ============================== -->
+<div class="app" id="app" hidden>
+  <header class="topo">
+    <svg class="estrela"><use href="#i-estrela"/></svg>
+    <div class="topo-txt"><b>Giro Foco</b><span id="topoQuem"></span></div>
+    <button class="pilula-sinc" id="pilulaSinc" data-estado="ok" title="Toque para atualizar agora"><i></i><span id="sincTxt">Atualizado</span></button>
+    <button class="btn-icone" id="btnSair" aria-label="Sair"><svg class="ic"><use href="#i-sair"/></svg></button>
+  </header>
+  <nav class="abas" id="abas" aria-label="Seções"></nav>
+  <div>
+    <div class="faixa-demo oculto" id="faixaDemo">Modo demonstração · dados fictícios, guardados só neste aparelho</div>
+    <main id="principal" tabindex="-1"></main>
+  </div>
+</div>
+
+<dialog class="folha" id="folhaVenda" aria-labelledby="vendaTitulo">
+  <div class="folha-alca" id="folhaAlca"><i></i></div>
+  <form class="folha-corpo" id="formVenda" method="dialog" novalidate>
+    <div>
+      <h2 id="vendaTitulo">Informar venda</h2>
+      <p class="sub" id="vendaSub"></p>
+    </div>
+    <div class="campo">
+      <span>Quantas caixas?</span>
+      <div class="passo">
+        <button type="button" data-passo="-1" aria-label="Menos uma caixa">−</button>
+        <input class="entrada" id="vendaCaixas" inputmode="numeric" value="1" aria-label="Caixas">
+        <button type="button" data-passo="1" aria-label="Mais uma caixa">+</button>
+      </div>
+      <div class="rapidos" id="vendaRapidos"></div>
+    </div>
+    <div class="campo">
+      <span>Previsão de faturamento</span>
+      <div class="segmentado" id="vendaPrevisao" role="group" aria-label="Previsão">
+        <button type="button" aria-pressed="false">Hoje</button>
+        <button type="button" aria-pressed="true">Amanhã</button>
+        <button type="button" aria-pressed="false">Esta semana</button>
+      </div>
+    </div>
+    <label class="campo"><span>Observação (opcional)</span>
+      <textarea class="entrada" id="vendaObs" maxlength="500" placeholder="Ex.: pedido fechado com o gerente"></textarea>
+    </label>
+    <div class="previa" id="vendaPrevia"></div>
+    <div style="display:flex; gap:10px">
+      <button type="button" class="btn btn-sec" id="vendaCancelar">Cancelar</button>
+      <button type="submit" class="btn btn-pri" id="vendaConfirmar" style="flex:1">Informar venda</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="avisos" id="avisos" aria-live="polite"></div>
+
+<script>
+'use strict';
+/* =============================================================================
+   CONFIGURAÇÃO — o único lugar que precisa mudar para ligar na planilha
+   ============================================================================= */
+const URL_NUVEM = window.GIRO_URL_NUVEM || '';   // cole aqui a URL do Apps Script (termina em /exec)
+const ATUALIZAR_A_CADA_SEG = 90;                 // de quanto em quanto tempo busca novidades
+const ITENS_POR_PAGINA = 40;
+
+const MODO_DEMO = !URL_NUVEM;
+const STATUS = ['GIRO ZERO', 'BAIXO DESEMPENHO', 'GIRO EFICIENTE'];
+const NOME_STATUS = { 'GIRO ZERO': 'Giro zero', 'BAIXO DESEMPENHO': 'Baixo desempenho', 'GIRO EFICIENTE': 'Giro eficiente' };
+const COR_STATUS = { 'GIRO ZERO': 'var(--zero)', 'BAIXO DESEMPENHO': 'var(--baixo)', 'GIRO EFICIENTE': 'var(--efic)' };
+const TXT_STATUS = { 'GIRO ZERO': 'var(--zero-texto)', 'BAIXO DESEMPENHO': 'var(--baixo-texto)', 'GIRO EFICIENTE': 'var(--efic-texto)' };
+
+/* ============================== UTILIDADES ============================== */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
+const nf = (n, casas = 0) => Number(n || 0).toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas });
+const pct = (parte, total) => total > 0 ? (parte / total) * 100 : 0;
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const icone = (id, cls = 'ic') => `<svg class="${cls}" aria-hidden="true"><use href="#i-${id}"/></svg>`;
+const ler = (k, padrao) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : padrao; } catch (e) { return padrao; } };
+const gravar = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* armazenamento cheio ou bloqueado */ } };
+const semMovimento = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const plural = (n, palavra) => n + ' ' + palavra + (n === 1 ? '' : 's');
+const ehExpurgado = c => String(c.expurgado).toUpperCase() === 'SIM';
+
+function dataCurta(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d)) return String(iso);
+  const hoje = new Date();
+  const hora = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  if (d.toDateString() === hoje.toDateString()) return 'hoje às ' + hora;
+  const ontem = new Date(hoje); ontem.setDate(hoje.getDate() - 1);
+  if (d.toDateString() === ontem.toDateString()) return 'ontem às ' + hora;
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' às ' + hora;
+}
+
+/* ============================== ESTADO ============================== */
+const estado = {
+  sessao: ler('giro_sessao', null),        // { token, perfil, codigo, nome }
+  dados: null,                             // { config, clientes, historico, alertas, dataVersion }
+  pendentes: ler('giro_pendentes', []),    // lançamentos ainda não confirmados pela nuvem
+  aba: 'carteira',
+  ui: { status: null, expurgos: 'fora', busca: '', ordem: 'prioridade', setor: '', mesa: '', pagina: 1, ordemEquipe: 'zero' },
+  ultimaAtualizacao: null,
+  carregando: false,
+  animarBarra: true,
+};
+
+/* ============================== NUVEM (Apps Script) ============================== */
+class ErroNuvem extends Error {
+  constructor(msg, { rede = false, sessao = false } = {}) { super(msg); this.rede = rede; this.sessao = sessao; }
+}
+
+async function chamar(acao, dados = {}) {
+  const corpo = Object.assign({ acao }, dados);
+  if (estado.sessao && acao !== 'entrar') corpo.token = estado.sessao.token;
+  let resposta;
+  if (MODO_DEMO) {
+    resposta = await Demo.chamar(corpo);
+  } else {
+    let r;
+    try {
+      // Sem cabeçalho Content-Type: o navegador envia como text/plain e o Google responde sem bloqueio.
+      r = await fetch(URL_NUVEM, { method: 'POST', body: JSON.stringify(corpo), redirect: 'follow' });
+    } catch (e) {
+      throw new ErroNuvem('Sem conexão com a internet.', { rede: true });
+    }
+    if (!r.ok) throw new ErroNuvem('A nuvem não respondeu (erro ' + r.status + ').', { rede: true });
+    try { resposta = await r.json(); } catch (e) { throw new ErroNuvem('Resposta inválida da nuvem.', { rede: true }); }
+  }
+  if (!resposta || !resposta.ok) {
+    const msg = (resposta && resposta.erro) || 'Erro desconhecido.';
+    throw new ErroNuvem(msg, { sessao: /expirou|entre novamente/i.test(msg) });
+  }
+  return resposta;
+}
+
+function definirSinc(estadoSinc, texto) {
+  const p = $('#pilulaSinc');
+  p.dataset.estado = estadoSinc;
+  $('#sincTxt').textContent = texto;
+}
+
+function atualizarPilula() {
+  if (estado.pendentes.length) {
+    definirSinc('pendente', estado.pendentes.length === 1 ? '1 envio pendente' : estado.pendentes.length + ' envios pendentes');
+  } else if (estado.ultimaAtualizacao) {
+    definirSinc('ok', 'Atualizado ' + estado.ultimaAtualizacao.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
+  }
+}
+
+async function carregarDados(leve = false) {
+  if (estado.carregando) return;
+  estado.carregando = true;
+  if (!leve) definirSinc('salvando', 'Atualizando…');
+  try {
+    const r = await chamar('dados', leve && estado.dados ? { desde: estado.dados.dataVersion } : {});
+    if (!r.semMudancas) {
+      estado.dados = { config: r.config, clientes: r.clientes, historico: r.historico || [], alertas: r.alertas || [], dataVersion: r.dataVersion };
+      // Cópia da própria carteira no aparelho: abre mesmo sem internet.
+      gravar('giro_cache', { chave: chaveCache(), dados: estado.dados });
+      reaplicarPendentes();
+      desenhar();
+    }
+    estado.ultimaAtualizacao = new Date();
+    atualizarPilula();
+  } catch (e) {
+    if (e.sessao) return sairPorSessao(e.message);
+    definirSinc(estado.pendentes.length ? 'pendente' : 'erro', e.rede ? 'Sem conexão' : 'Erro ao atualizar');
+    if (!estado.dados) {
+      $('#principal').innerHTML = `<div class="vista"><div class="vazio"><b>${e.rede ? 'Sem conexão com a internet' : 'Não foi possível carregar'}</b>
+        ${esc(e.message)} Assim que a conexão voltar, toque em tentar de novo.<div style="margin-top:14px"><button class="btn btn-pri" id="btnTentar">Tentar de novo</button></div></div></div>`;
+    } else if (!leve) avisar(e.message + ' Mostrando os últimos dados salvos no aparelho.', true);
+  } finally {
+    estado.carregando = false;
+  }
+}
+
+/* Lançamentos ficam numa fila até a nuvem confirmar. Se a internet cair, nada se perde. */
+function enfileirar(acao, dados) {
+  estado.pendentes.push({ id: Date.now() + '_' + Math.random().toString(36).slice(2, 7), acao, dados });
+  gravar('giro_pendentes', estado.pendentes);
+  enviarPendentes();
+}
+
+let enviando = false;
+async function enviarPendentes() {
+  if (enviando || !estado.pendentes.length) { atualizarPilula(); return; }
+  enviando = true;
+  definirSinc('salvando', 'Salvando…');
+  try {
+    while (estado.pendentes.length) {
+      const p = estado.pendentes[0];
+      try {
+        const r = await chamar(p.acao, p.dados);
+        if (r.cliente) mesclarCliente(r.cliente);
+        if (r.dataVersion && estado.dados) estado.dados.dataVersion = r.dataVersion;
+        estado.pendentes.shift();
+        gravar('giro_pendentes', estado.pendentes);
+      } catch (e) {
+        if (e.sessao) { enviando = false; return sairPorSessao(e.message); }
+        if (e.rede) { definirSinc('pendente', 'Sem conexão · ' + estado.pendentes.length + ' pendente(s)'); break; }
+        // Recusado pela nuvem (ex.: cliente de outra carteira): desfaz e avisa.
+        estado.pendentes.shift();
+        gravar('giro_pendentes', estado.pendentes);
+        avisar('Não foi salvo: ' + e.message, true);
+        await carregarDados();
+      }
+    }
+  } finally {
+    enviando = false;
+    if (!estado.pendentes.length) { estado.ultimaAtualizacao = new Date(); atualizarPilula(); }
+    desenhar();
+  }
+}
+
+function aplicarLocal(acao, dados) {
+  if (!estado.dados) return;
+  const c = estado.dados.clientes.find(x => x.idCliente === dados.idCliente);
+  if (!c) return;
+  if (acao === 'informarVenda') {
+    Object.assign(c, { vendaInformada: true, vendaCaixas: dados.caixas, vendaPrevisao: dados.previsao, vendaObs: dados.obs,
+      vendaAutor: rotuloSessao(), vendaData: new Date().toISOString() });
+  } else if (acao === 'limparAmarelo') {
+    Object.assign(c, { vendaInformada: false, vendaCaixas: 0, vendaObs: '', vendaPrevisao: '' });
+  }
+}
+function reaplicarPendentes() { estado.pendentes.forEach(p => aplicarLocal(p.acao, p.dados)); }
+function mesclarCliente(novo) {
+  if (!estado.dados) return;
+  const i = estado.dados.clientes.findIndex(c => c.idCliente === novo.idCliente);
+  if (i >= 0) estado.dados.clientes[i] = novo;
+}
+
+/* ============================== CÁLCULOS ============================== */
+function rotuloSessao() {
+  const s = estado.sessao;
+  if (!s) return '';
+  return s.perfil === 'ADMIN' ? 'Administrador' : (s.perfil === 'VENDEDOR' ? 'Setor ' : 'Mesa ') + s.codigo;
+}
+function fator() { return Number(estado.dados && estado.dados.config.boxFactorHL) || 0.0396; }
+function porAtivos() { return !estado.dados || estado.dados.config.calcMetricMode !== 'CLIENTES'; }
+function peso(c) { return porAtivos() ? Math.max(1, parseInt(c.ativos, 10) || 1) : 1; }
+
+function metricasCliente(c) {
+  const real = Number(c.realHL) || 0, meta = Number(c.metaHL) || 0;
+  const faltaHL = Math.max(0, meta - real);
+  const faltaCx = faltaHL > 0 ? Math.ceil(faltaHL / fator()) : 0;
+  return { real, meta, faltaHL, faltaCx, pctMeta: meta > 0 ? Math.min(100, (real / meta) * 100) : 100 };
+}
+
+/** Clientes no recorte atual (expurgos, mesa, setor) — base de todos os números da tela. */
+function recorte({ ignorarStatus = true } = {}) {
+  if (!estado.dados) return [];
+  const u = estado.ui;
+  return estado.dados.clientes.filter(c => {
+    const exp = ehExpurgado(c);
+    if (u.expurgos === 'fora' && exp) return false;
+    if (u.expurgos === 'so' && !exp) return false;
+    if (u.mesa && c.supId !== u.mesa) return false;
+    if (u.setor && c.setorId !== u.setor) return false;
+    if (!ignorarStatus && u.status && c.statusGiro !== u.status) return false;
+    return true;
+  });
+}
+
+function resumo(lista) {
+  const r = { total: 0, clientes: lista.length, ativos: 0, faltaHL: 0, faltaCx: 0, amarelos: 0 };
+  STATUS.forEach(s => { r[s] = { peso: 0, clientes: 0, ativos: 0 }; });
+  lista.forEach(c => {
+    const s = r[c.statusGiro] || r['BAIXO DESEMPENHO'];
+    const p = peso(c);
+    s.peso += p; s.clientes++; s.ativos += Math.max(1, parseInt(c.ativos, 10) || 1);
+    r.total += p; r.ativos += Math.max(1, parseInt(c.ativos, 10) || 1);
+    if (c.statusGiro !== 'GIRO EFICIENTE') { const m = metricasCliente(c); r.faltaHL += m.faltaHL; r.faltaCx += m.faltaCx; }
+    if (c.vendaInformada) r.amarelos++;
+  });
+  return r;
+}
+
+/* ============================== AVISOS ============================== */
+function avisar(texto, erro = false) {
+  const el = document.createElement('div');
+  el.className = 'aviso' + (erro ? ' erro' : '');
+  el.innerHTML = icone(erro ? 'alerta' : 'check') + '<span>' + esc(texto) + '</span>';
+  $('#avisos').appendChild(el);
+  setTimeout(() => { el.classList.add('sai'); setTimeout(() => el.remove(), 220); }, erro ? 5200 : 3200);
+}
+
+/* ============================== ENTRADA ============================== */
+let perfilEntrada = 'VENDEDOR';
+function prepararEntrada(msg) {
+  $('#app').hidden = true;
+  $('#telaEntrar').hidden = false;
+  const ult = ler('giro_ultimo_acesso', null);
+  if (ult) { escolherPerfil(ult.perfil); $('#entCodigo').value = ult.codigo || ''; }
+  else escolherPerfil('VENDEDOR');
+  $('#entSenha').value = '';
+  mostrarErroEntrada(msg || '');
+  if (MODO_DEMO) {
+    const d = $('#dicaDemo');
+    d.classList.remove('oculto');
+    d.innerHTML = 'Modo demonstração (dados fictícios). Experimente: vendedor <code>70101</code> senha <code>70101</code> · ' +
+      'supervisor <code>90100</code> senha <code>90100</code> · admin senha <code>demo</code>.';
+  }
+}
+function escolherPerfil(p) {
+  perfilEntrada = p;
+  $$('#formEntrar .segmentado button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.perfil === p)));
+  $('#campoCodigo').classList.toggle('oculto', p === 'ADMIN');
+  $('#rotCodigo').textContent = p === 'VENDEDOR' ? 'Número do setor' : 'Número da mesa';
+  $('#entCodigo').placeholder = p === 'VENDEDOR' ? 'Ex.: 15623' : 'Ex.: 31470';
+}
+function mostrarErroEntrada(msg) { const e = $('#entErro'); e.textContent = msg; e.classList.toggle('oculto', !msg); }
+
+async function entrar(ev) {
+  ev.preventDefault();
+  const codigo = $('#entCodigo').value.trim();
+  const senha = $('#entSenha').value.trim();
+  if (perfilEntrada !== 'ADMIN' && !codigo) return mostrarErroEntrada(perfilEntrada === 'VENDEDOR' ? 'Digite o número do seu setor.' : 'Digite o número da sua mesa.');
+  if (!senha) return mostrarErroEntrada('Digite a senha.');
+  const btn = $('#btnEntrar');
+  btn.disabled = true; btn.innerHTML = '<i class="giro"></i> Entrando…';
+  mostrarErroEntrada('');
+  try {
+    const r = await chamar('entrar', { perfil: perfilEntrada, codigo, senha });
+    estado.sessao = { token: r.token, perfil: r.perfil, codigo: r.codigo, nome: r.nome };
+    if ($('#entLembrar').checked) gravar('giro_sessao', estado.sessao); else localStorage.removeItem('giro_sessao');
+    gravar('giro_ultimo_acesso', { perfil: perfilEntrada, codigo });
+    abrirApp();
+  } catch (e) {
+    mostrarErroEntrada(e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Entrar';
+  }
+}
+
+function chaveCache() { return estado.sessao ? estado.sessao.perfil + '|' + estado.sessao.codigo : ''; }
+function sair() {
+  if (estado.pendentes.length && !confirm('Há lançamentos que ainda não chegaram na nuvem. Se sair agora eles serão perdidos. Sair mesmo assim?')) return;
+  estado.sessao = null; estado.dados = null; estado.pendentes = [];
+  localStorage.removeItem('giro_sessao'); localStorage.removeItem('giro_pendentes'); localStorage.removeItem('giro_cache');
+  document.body.classList.remove('apresentacao');
+  prepararEntrada();
+}
+function sairPorSessao(msg) {
+  estado.sessao = null; estado.dados = null;
+  localStorage.removeItem('giro_sessao'); localStorage.removeItem('giro_cache');
+  prepararEntrada(msg);
+}
+
+/* ============================== ABRIR O APP ============================== */
+function abasDoPerfil() {
+  const p = estado.sessao.perfil;
+  const abas = [['carteira', 'Carteira', 'carteira'], ['amarelos', 'Amarelos', 'amarelo'], ['evolucao', 'Evolução', 'evolucao']];
+  if (p !== 'VENDEDOR') abas.push(['equipe', 'Equipe', 'equipe']);
+  if (p === 'ADMIN') abas.push(['admin', 'Admin', 'admin']);
+  return abas;
+}
+
+function abrirApp() {
+  $('#telaEntrar').hidden = true;
+  $('#app').hidden = false;
+  $('#faixaDemo').classList.toggle('oculto', !MODO_DEMO);
+  const s = estado.sessao;
+  $('#topoQuem').textContent = s.perfil === 'ADMIN' ? 'Administrador · todas as mesas'
+    : (s.perfil === 'VENDEDOR' ? 'Setor ' : 'Mesa ') + s.codigo + (s.nome ? ' · ' + s.nome : '');
+  Object.assign(estado.ui, { status: null, setor: '', mesa: '', busca: '', pagina: 1 });
+  estado.aba = 'carteira';
+  estado.animarBarra = true;
+  desenharAbas();
+  const cache = ler('giro_cache', null);
+  if (cache && cache.chave === chaveCache() && cache.dados) {
+    estado.dados = cache.dados;
+    reaplicarPendentes();
+    desenhar();
+  } else {
+    estado.dados = null;
+    $('#principal').innerHTML = '<div class="vista"><div class="esqueleto" style="height:210px"></div><div class="esqueleto"></div><div class="esqueleto"></div></div>';
+  }
+  carregarDados().then(enviarPendentes);
+}
+
+function desenharAbas() {
+  const amarelos = estado.dados ? recorteAmarelos().length : 0;
+  $('#abas').innerHTML = abasDoPerfil().map(([id, nome, ic]) =>
+    `<button data-aba="${id}" ${estado.aba === id ? 'aria-current="page"' : ''}>${icone(ic)}<span>${nome}</span>` +
+    (id === 'amarelos' && amarelos ? `<b class="selo">${amarelos}</b>` : '') + '</button>').join('');
+}
+
+function irPara(aba) {
+  estado.aba = aba;
+  estado.animarBarra = aba === 'carteira';
+  desenhar();
+  window.scrollTo({ top: 0, behavior: semMovimento() ? 'auto' : 'smooth' });
+}
+
+function desenhar() {
+  if (!estado.sessao || !estado.dados) return;
+  desenharAbas();
+  const vistas = { carteira: vistaCarteira, amarelos: vistaAmarelos, evolucao: vistaEvolucao, equipe: vistaEquipe, admin: vistaAdmin };
+  const foco = document.activeElement && document.activeElement.id === 'busca' ? 'busca' : null;
+  const pos = foco ? $('#busca').selectionStart : 0;
+  $('#principal').innerHTML = (vistas[estado.aba] || vistaCarteira)();
+  pos3d();
+  if (foco) { const b = $('#busca'); b.focus(); b.setSelectionRange(pos, pos); }
+  estado.animarBarra = false;
+}
+
+/* ============================== FILTROS DE ESCOPO (mesa / setor) ============================== */
+function seletoresEscopo() {
+  const s = estado.sessao, c = estado.dados.clientes, u = estado.ui;
+  if (s.perfil === 'VENDEDOR') return '';
+  let html = '';
+  if (s.perfil === 'ADMIN') {
+    const mesas = [...new Map(c.map(x => [x.supId, x.supNome])).entries()].sort((a, b) => a[0].localeCompare(b[0]));
+    html += `<label class="chip">Mesa <select data-filtro="mesa"><option value="">Todas</option>${mesas.map(([id, n]) =>
+      `<option value="${esc(id)}" ${u.mesa === id ? 'selected' : ''}>${esc(id)} · ${esc(n)}</option>`).join('')}</select></label>`;
+  }
+  const setores = [...new Map(c.filter(x => !u.mesa || x.supId === u.mesa).map(x => [x.setorId, x.vendedorNome])).entries()]
+    .sort((a, b) => a[0].localeCompare(b[0]));
+  html += `<label class="chip">Setor <select data-filtro="setor"><option value="">Todos</option>${setores.map(([id, n]) =>
+    `<option value="${esc(id)}" ${u.setor === id ? 'selected' : ''}>${esc(id)} · ${esc(n)}</option>`).join('')}</select></label>`;
+  return html;
+}
+
+function filtrosExpurgo() {
+  const u = estado.ui;
+  return `<div class="segmentado" role="group" aria-label="Expurgos" style="flex:none">
+    ${[['fora', 'Sem expurgos'], ['dentro', 'Com expurgos'], ['so', 'Só expurgos']].map(([v, n]) =>
+      `<button type="button" data-expurgos="${v}" aria-pressed="${u.expurgos === v}">${n}</button>`).join('')}
+  </div>`;
+}
+
+/* ============================== VISTA: CARTEIRA ============================== */
+function barraGiro(lista, { titulo = 'Giro da carteira', interativa = true } = {}) {
+  const r = resumo(lista);
+  const u = estado.ui;
+  const base = porAtivos() ? 'ativos' : 'clientes';
+  const segs = STATUS.map((s, i) => {
+    const p = pct(r[s].peso, r.total);
+    return `<button type="button" class="seg" data-s="${s}" style="--peso:${Math.max(p, 0.0001)};--i:${i}" ${interativa ? `data-status="${s}"` : 'tabindex="-1"'}
+      aria-pressed="${u.status === s}" aria-label="${NOME_STATUS[s]}: ${nf(p, 1)}%"></button>`;
+  }).join('');
+  const leg = STATUS.map(s => {
+    const p = pct(r[s].peso, r.total);
+    return `<button type="button" ${interativa ? `data-status="${s}"` : 'disabled'} aria-pressed="${u.status === s}" style="--c:${COR_STATUS[s]};--ct:${TXT_STATUS[s]}">
+      <span class="rot"><i></i>${NOME_STATUS[s]}</span><span class="pct">${nf(p, 1)}%</span>
+      <span class="det">${plural(r[s].ativos, 'ativo')} · ${plural(r[s].clientes, 'cliente')}</span></button>`;
+  }).join('');
+  return `<section class="giro3d ${u.status && interativa ? 'filtrando' : ''}" aria-label="${esc(titulo)}">
+    <div class="giro3d-titulo"><h3>${esc(titulo)}</h3><span>% por ${base}${estado.ui.expurgos === 'fora' ? ' · sem expurgos' : estado.ui.expurgos === 'so' ? ' · só expurgos' : ' · com expurgos'}</span></div>
+    <div class="giro3d-palco"><div class="giro3d-barra ${estado.animarBarra ? 'entrada-anim' : ''}" id="barra3d">${segs}</div></div>
+    <div class="giro3d-legenda">${leg}</div>
+    <div class="giro3d-resumo">
+      <span>Faltam <b>${nf(r.faltaCx)} cx</b> (${nf(r.faltaHL, 2)} HL) para a meta</span>
+      <span><b>${r.amarelos}</b> com venda informada</span>
+      <span><b>${r.ativos}</b> ativos em ${r.clientes} clientes</span>
+    </div>
+  </section>`;
+}
+
+function ordenar(lista) {
+  const o = estado.ui.ordem;
+  const ordemStatus = { 'GIRO ZERO': 0, 'BAIXO DESEMPENHO': 1, 'GIRO EFICIENTE': 2 };
+  const l = lista.slice();
+  if (o === 'nome') l.sort((a, b) => a.cliente.localeCompare(b.cliente, 'pt-BR'));
+  else if (o === 'falta') l.sort((a, b) => metricasCliente(b).faltaCx - metricasCliente(a).faltaCx);
+  else if (o === 'perto') l.sort((a, b) => (ordemStatus[a.statusGiro] === 2) - (ordemStatus[b.statusGiro] === 2) || metricasCliente(a).faltaCx - metricasCliente(b).faltaCx);
+  else l.sort((a, b) => ordemStatus[a.statusGiro] - ordemStatus[b.statusGiro] || metricasCliente(a).faltaCx - metricasCliente(b).faltaCx);
+  return l;
+}
+
+function filtrarBusca(lista) {
+  const q = estado.ui.busca.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  if (!q) return lista;
+  const qNum = q.replace(/\D/g, '');
+  return lista.filter(c => {
+    const txt = (c.cliente + ' ' + c.idCliente + ' ' + c.categoria + ' ' + c.vendedorNome).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    return txt.includes(q) || (qNum.length >= 3 && String(c.cnpj).replace(/\D/g, '').includes(qNum));
+  });
+}
+
+function cartaoCliente(c) {
+  const m = metricasCliente(c);
+  const s = estado.sessao;
+  const extra = c.vendaInformada ? Math.min(100 - m.pctMeta, (c.vendaCaixas * fator() / (m.meta || 1)) * 100) : 0;
+  const etiquetas = [];
+  if (ehExpurgado(c)) etiquetas.push('<span class="etq exp">Expurgado</span>');
+  if (c.saidaConfirmada) etiquetas.push(`<span class="etq ok">${icone('check')}Saída confirmada</span>`);
+  if (c.categoria) etiquetas.push(`<span class="etq">${esc(c.categoria)}</span>`);
+  if (Number(c.ativos) > 1) etiquetas.push(`<span class="etq">${c.ativos} ativos</span>`);
+  if (c.monthStartStatus && c.monthStartStatus !== c.statusGiro) {
+    etiquetas.push(`<span class="etq">Início do mês: ${esc(NOME_STATUS[c.monthStartStatus] || c.monthStartStatus)}</span>`);
+  }
+  const pend = estado.pendentes.some(p => p.dados.idCliente === c.idCliente);
+  const quem = s.perfil === 'VENDEDOR' ? '' : ` · Setor ${esc(c.setorId)}`;
+  const acao = c.vendaInformada
+    ? `<span class="aviso-amarelo">${icone('amarelo')}${c.vendaCaixas} cx informadas${c.vendaPrevisao ? ' · ' + esc(c.vendaPrevisao) : ''}${pend ? ' · enviando…' : c.vendaData ? ' · ' + esc(dataCurta(c.vendaData)) : ''}</span>
+       <button class="btn btn-txt" data-limpar="${esc(c.idCliente)}">Desfazer</button>`
+    : `<span class="contagem">${m.faltaCx > 0 ? `Faltam <b style="color:var(--tinta)">${m.faltaCx} cx</b>` : 'Meta batida'}</span>
+       <button class="btn btn-sec" data-vender="${esc(c.idCliente)}">${icone('caixa')}Informar venda</button>`;
+  return `<article class="cli ${c.vendaInformada ? 'amarelo' : ''}">
+    <div class="cli-topo">
+      <div class="cli-nome"><b>${esc(c.cliente)}</b><span>#${esc(c.idCliente)}${quem}</span></div>
+      <span class="selo-status" data-s="${esc(c.statusGiro)}"><i></i>${esc(NOME_STATUS[c.statusGiro] || c.statusGiro)}</span>
+    </div>
+    <div class="medidor">
+      <div class="medidor-num"><span>Real × meta</span><span><b>${nf(m.real, 2)}</b> / ${nf(m.meta, 1)} HL</span></div>
+      <div class="medidor-trilho" role="img" aria-label="${nf(m.pctMeta, 0)}% da meta"><i style="width:${m.pctMeta}%;--c:${COR_STATUS[c.statusGiro]}"></i>${extra > 0 ? `<em style="left:${m.pctMeta}%;width:${extra}%"></em>` : ''}</div>
+    </div>
+    ${etiquetas.length ? `<div class="etiquetas">${etiquetas.join('')}</div>` : ''}
+    <div class="cli-acoes">${acao}</div>
+  </article>`;
+}
+
+function vistaCarteira() {
+  const s = estado.sessao, u = estado.ui;
+  const base = recorte();
+  const lista = ordenar(filtrarBusca(base.filter(c => !u.status || c.statusGiro === u.status)));
+  const pagina = lista.slice(0, u.pagina * ITENS_POR_PAGINA);
+  const titulo = s.perfil === 'VENDEDOR' ? 'Minha carteira' : s.perfil === 'SUPERVISOR' ? 'Carteira da mesa ' + s.codigo : 'Carteira geral';
+  const atual = estado.dados.config.lastUpdateLabel;
+  return `<div class="vista">
+    <div class="cab-vista"><div><h2>${esc(titulo)}</h2><p>${atual ? 'Base: ' + esc(atual) : 'Base ainda não atualizada'}</p></div></div>
+    ${barraGiro(base, { titulo: u.setor ? 'Giro do setor ' + u.setor : u.mesa ? 'Giro da mesa ' + u.mesa : 'Giro da carteira' })}
+    <div class="ferramentas">
+      <div class="busca">${icone('busca')}<input class="entrada" id="busca" type="search" placeholder="Buscar por nome, código ou CNPJ" value="${esc(u.busca)}" autocomplete="off" enterkeyhint="search"></div>
+      <div class="linha-filtros">
+        ${filtrosExpurgo()}
+        ${seletoresEscopo()}
+        <label class="chip">Ordem <select data-filtro="ordem">
+          ${[['prioridade', 'Prioridade'], ['perto', 'Mais perto da meta'], ['falta', 'Maior falta'], ['nome', 'Nome']].map(([v, n]) =>
+            `<option value="${v}" ${u.ordem === v ? 'selected' : ''}>${n}</option>`).join('')}
+        </select></label>
+      </div>
+      <div class="contagem">${lista.length} cliente${lista.length === 1 ? '' : 's'}${u.status ? ' em ' + NOME_STATUS[u.status].toLowerCase() + ' · <button class="btn btn-txt" data-status="' + u.status + '" style="min-height:32px;padding:0 6px">mostrar todos</button>' : ''}</div>
+    </div>
+    <div class="lista">
+      ${pagina.length ? pagina.map(cartaoCliente).join('') : `<div class="vazio"><b>Nenhum cliente aqui</b>${u.busca ? 'Nada encontrado para “' + esc(u.busca) + '”. Confira o nome ou o código.' : 'Troque o filtro de status ou de expurgos para ver outros clientes.'}</div>`}
+    </div>
+    ${lista.length > pagina.length ? `<div class="mais"><button class="btn btn-sec" data-mais>Mostrar mais ${Math.min(ITENS_POR_PAGINA, lista.length - pagina.length)} de ${lista.length - pagina.length}</button></div>` : ''}
+  </div>`;
+}
+
+/* ============================== VISTA: AMARELOS ============================== */
+function recorteAmarelos() {
+  return estado.dados.clientes.filter(c => c.vendaInformada && (!estado.ui.mesa || c.supId === estado.ui.mesa) && (!estado.ui.setor || c.setorId === estado.ui.setor));
+}
+function vistaAmarelos() {
+  const lista = recorteAmarelos().sort((a, b) => String(b.vendaData).localeCompare(String(a.vendaData)));
+  const cx = lista.reduce((a, c) => a + (Number(c.vendaCaixas) || 0), 0);
+  const admin = estado.sessao.perfil === 'ADMIN';
+  const alertas = (estado.dados.alertas || []).slice(0, 12);
+  return `<div class="vista">
+    <div class="cab-vista"><div><h2>Vendas informadas</h2>
+      <p>${lista.length} cliente${lista.length === 1 ? '' : 's'} aguardando faturamento · ${nf(cx)} caixas · ${nf(cx * fator(), 2)} HL</p></div>
+      ${admin && lista.length ? `<button class="btn btn-pri" data-confirmar-amarelos>${icone('check')}Confirmar saída de todos</button>` : ''}
+    </div>
+    ${estado.sessao.perfil !== 'VENDEDOR' ? `<div class="linha-filtros">${seletoresEscopo()}</div>` : ''}
+    <div class="lista">${lista.length ? lista.map(cartaoCliente).join('') :
+      `<div class="vazio"><b>Nenhuma venda aguardando</b>Quando alguém tocar em “Informar venda” num cliente, ele aparece aqui até a base do dia confirmar a saída.</div>`}</div>
+    ${alertas.length ? `<section class="painel"><h3>Últimos avisos</h3>${alertas.map(a =>
+      `<div class="alerta-linha">${icone(a.type === 'AMARELO' ? 'amarelo' : 'sino')}<div>${esc(a.title)}<small>${esc(a.desc)} · ${esc(a.time)}</small></div></div>`).join('')}</section>` : ''}
+  </div>`;
+}
+
+/* ============================== VISTA: EVOLUÇÃO ============================== */
+function graficoLinhas(hist) {
+  if (!hist.length) return '<div class="vazio"><b>Sem histórico ainda</b>Cada atualização da base marca um ponto do mês neste gráfico.</div>';
+  const estreito = window.innerWidth < 600;
+  const W = estreito ? 360 : 640, H = estreito ? 200 : 240, m = { e: 36, d: 16, t: 14, b: 28 };
+  const series = [['eficPct', 'var(--efic)', 'Eficiente'], ['baixoPct', 'var(--baixo)', 'Baixo desempenho'], ['zeroPct', 'var(--zero)', 'Giro zero']];
+  const max = Math.min(100, Math.ceil(Math.max(10, ...hist.flatMap(h => series.map(s => Number(h[s[0]]) || 0))) / 10) * 10);
+  const x = i => m.e + (hist.length === 1 ? (W - m.e - m.d) / 2 : i * (W - m.e - m.d) / (hist.length - 1));
+  const y = v => m.t + (H - m.t - m.b) * (1 - v / max);
+  const grades = [0, max / 2, max].map(v => `<line x1="${m.e}" x2="${W - m.d}" y1="${y(v)}" y2="${y(v)}" stroke="#e1e8e3"/><text x="${m.e - 8}" y="${y(v) + 4}" text-anchor="end">${v}%</text>`).join('');
+  const passo = Math.max(1, Math.ceil(hist.length / 6));
+  const rotulos = hist.map((h, i) => (i % passo === 0 || i === hist.length - 1) ? `<text x="${x(i)}" y="${H - 6}" text-anchor="middle">${esc(h.dateLabel)}</text>` : '').join('');
+  const linhas = series.map(([k, cor]) => {
+    const pts = hist.map((h, i) => [x(i), y(Number(h[k]) || 0)]);
+    let comp = 0;
+    for (let i = 1; i < pts.length; i++) comp += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+    const d = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+    const ult = pts[pts.length - 1];
+    return `<path class="linha-g desenhar" d="${d}" stroke="${cor}" style="--comp:${Math.ceil(comp) + 2}"/>
+      <circle cx="${ult[0]}" cy="${ult[1]}" r="5" fill="#fff" stroke="${cor}" stroke-width="3"/>`;
+  }).join('');
+  return `<svg class="grafico" viewBox="0 0 ${W} ${H}" role="img" aria-label="Evolução diária do giro no mês">${grades}${rotulos}${linhas}</svg>
+    <div class="legenda-g">${series.map(([, cor, n]) => `<span style="--c:${cor}"><i></i>${n}</span>`).join('')}</div>`;
+}
+
+function vistaEvolucao() {
+  const lista = recorte();
+  const t = { saiuZero: 0, paraEfic: 0, regrediu: 0, comecouZero: 0 };
+  lista.forEach(c => {
+    const ini = c.monthStartStatus || c.statusGiro, agora = c.statusGiro;
+    if (ini === 'GIRO ZERO') t.comecouZero++;
+    if (ini === 'GIRO ZERO' && agora !== 'GIRO ZERO') t.saiuZero++;
+    if (ini !== 'GIRO EFICIENTE' && agora === 'GIRO EFICIENTE') t.paraEfic++;
+    if ((ini === 'GIRO EFICIENTE' && agora !== 'GIRO EFICIENTE') || (ini === 'BAIXO DESEMPENHO' && agora === 'GIRO ZERO')) t.regrediu++;
+  });
+  const inicio = lista.map(c => Object.assign({}, c, { statusGiro: c.monthStartStatus || c.statusGiro }));
+  const rIni = resumo(inicio), rAgora = resumo(lista);
+  const zIni = pct(rIni['GIRO ZERO'].peso, rIni.total), zAg = pct(rAgora['GIRO ZERO'].peso, rAgora.total);
+  const eIni = pct(rIni['GIRO EFICIENTE'].peso, rIni.total), eAg = pct(rAgora['GIRO EFICIENTE'].peso, rAgora.total);
+  const hist = estado.dados.historico || [];
+  let ritmo = '';
+  if (hist.length >= 2) {
+    const a = Number(hist[0].zeroPct) || 0, b = Number(hist[hist.length - 1].zeroPct) || 0;
+    const porDia = (b - a) / (hist.length - 1);
+    const hoje = new Date(), fim = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+    const resta = Math.max(0, fim.getDate() - hoje.getDate());
+    const proj = Math.max(0, b + porDia * resta);
+    ritmo = `<div class="ritmo">No ritmo atual (${porDia <= 0 ? '−' : '+'}${nf(Math.abs(porDia), 2)} ponto por atualização), o giro zero da operação fecha o mês perto de <b>${nf(proj, 1)}%</b>. Faltam ${resta} dias.</div>`;
+  }
+  const seta = (ag, ini, bomSubir) => {
+    const dif = ag - ini;
+    if (Math.abs(dif) < 0.05) return 'igual ao início do mês';
+    return (dif > 0 ? '+' : '−') + nf(Math.abs(dif), 1) + ' ponto' + (Math.abs(dif) >= 2 ? 's' : '') + ' desde o início do mês';
+  };
+  const classe = (ag, ini, bomSubir) => ((ag - ini) * (bomSubir ? 1 : -1)) >= 0 ? 'bom' : 'ruim';
+  return `<div class="vista">
+    <div class="cab-vista"><div><h2>Evolução do mês</h2><p>Comparando o status de hoje com o início do mês</p></div>
+      ${estado.sessao.perfil !== 'VENDEDOR' ? `<button class="btn btn-sec" data-apresentar>${icone('tela')}Modo apresentação</button>` : ''}</div>
+    ${estado.sessao.perfil !== 'VENDEDOR' ? `<div class="linha-filtros">${filtrosExpurgo()}${seletoresEscopo()}</div>` : `<div class="linha-filtros">${filtrosExpurgo()}</div>`}
+    <div class="numeros">
+      <div class="numero ${classe(zAg, zIni, false)}"><span>Giro zero agora</span><b>${nf(zAg, 1)}%</b><small>${seta(zAg, zIni)}</small></div>
+      <div class="numero ${classe(eAg, eIni, true)}"><span>Giro eficiente agora</span><b>${nf(eAg, 1)}%</b><small>${seta(eAg, eIni)}</small></div>
+      <div class="numero bom"><span>Saíram do zero</span><b>${t.saiuZero}</b><small>de ${t.comecouZero} que começaram em zero</small></div>
+      <div class="numero ${t.regrediu ? 'ruim' : ''}"><span>Pioraram no mês</span><b>${t.regrediu}</b><small>caíram de status desde o dia 1</small></div>
+    </div>
+    <div class="grade-2">
+      <section class="painel"><h3>Curva diária</h3><p class="nota">Toda a operação, um ponto por atualização da base</p>${graficoLinhas(hist)}${ritmo}</section>
+      <section class="painel"><h3>Início do mês × hoje</h3><p class="nota">Mesma carteira, como estava no dia 1 e como está agora</p>
+        ${barraGiroMini(inicio, 'Início do mês')}${barraGiroMini(lista, 'Hoje')}
+        <p class="nota" style="margin:12px 0 0">${t.paraEfic} cliente${t.paraEfic === 1 ? '' : 's'} chegaram ao giro eficiente neste mês.</p>
+      </section>
+    </div>
+  </div>`;
+}
+
+function barraGiroMini(lista, rotulo) {
+  const r = resumo(lista);
+  return `<div style="display:grid;gap:6px;margin-top:12px">
+    <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:650"><span>${esc(rotulo)}</span>
+      <span style="color:var(--tinta-3);font-weight:550">${STATUS.map(s => nf(pct(r[s].peso, r.total), 1) + '%').join(' · ')}</span></div>
+    <div class="pilha" style="height:16px;grid-column:auto">${STATUS.map(s => `<i style="width:${pct(r[s].peso, r.total)}%;--c:${COR_STATUS[s]}"></i>`).join('')}</div>
+  </div>`;
+}
+
+/* ============================== VISTA: EQUIPE ============================== */
+function agrupar(lista, chave, nome) {
+  const g = new Map();
+  lista.forEach(c => {
+    if (!g.has(c[chave])) g.set(c[chave], { id: c[chave], nome: c[nome], clientes: [] });
+    g.get(c[chave]).clientes.push(c);
+  });
+  return [...g.values()].map(x => Object.assign(x, { r: resumo(x.clientes) }));
+}
+
+function listaRanking(grupos, tipo) {
+  const ord = estado.ui.ordemEquipe;
+  const z = x => pct(x.r['GIRO ZERO'].peso, x.r.total), e = x => pct(x.r['GIRO EFICIENTE'].peso, x.r.total);
+  grupos.sort((a, b) => ord === 'zero' ? z(b) - z(a) || b.r.faltaCx - a.r.faltaCx : e(b) - e(a));
+  return `<div class="ranking">${grupos.map((g, i) => `
+    <button class="rank-item" data-ver-${tipo}="${esc(g.id)}">
+      <span class="rank-pos">${i + 1}</span>
+      <span class="rank-nome"><b>${esc(g.id)} · ${esc(g.nome)}</b><span>${g.r.clientes} clientes · ${g.r.amarelos} com venda informada · faltam ${nf(g.r.faltaCx)} cx</span></span>
+      <span class="rank-val">${ord === 'zero' ? nf(z(g), 1) + '%' : `<span style="color:var(--efic-texto)">${nf(e(g), 1)}%</span>`}<small>${ord === 'zero' ? 'giro zero' : 'eficiente'}</small></span>
+      <span class="pilha">${STATUS.map(s => `<i style="width:${pct(g.r[s].peso, g.r.total)}%;--c:${COR_STATUS[s]}"></i>`).join('')}</span>
+    </button>`).join('')}</div>`;
+}
+
+function vistaEquipe() {
+  const s = estado.sessao;
+  const lista = recorte();
+  const u = estado.ui;
+  const ordem = `<div class="segmentado" role="group" aria-label="Ordenar ranking" style="max-width:420px">
+    <button type="button" data-ordem-equipe="zero" aria-pressed="${u.ordemEquipe === 'zero'}">Quem cobrar primeiro</button>
+    <button type="button" data-ordem-equipe="efic" aria-pressed="${u.ordemEquipe === 'efic'}">Mais eficientes</button></div>`;
+  return `<div class="vista">
+    <div class="cab-vista"><div><h2>Equipe</h2><p>${s.perfil === 'ADMIN' ? 'Todas as mesas e setores' : 'Setores da mesa ' + esc(s.codigo)} · toque para abrir a carteira</p></div>
+      <button class="btn btn-sec" data-apresentar>${icone('tela')}Modo apresentação</button></div>
+    <div class="linha-filtros">${filtrosExpurgo()}${s.perfil === 'ADMIN' ? seletoresEscopo().split('</label>')[0] + '</label>' : ''}</div>
+    ${ordem}
+    ${barraGiro(lista, { titulo: s.perfil === 'ADMIN' ? (u.mesa ? 'Mesa ' + u.mesa : 'Operação inteira') : 'Mesa ' + s.codigo, interativa: false })}
+    <div class="grade-2">
+      ${s.perfil === 'ADMIN' && !u.mesa ? `<section class="painel"><h3>Mesas</h3><p class="nota">Comparativo entre supervisores</p>${listaRanking(agrupar(lista, 'supId', 'supNome'), 'mesa')}</section>` : ''}
+      <section class="painel"><h3>Setores</h3><p class="nota">${u.ordemEquipe === 'zero' ? 'Mais giro zero primeiro' : 'Mais giro eficiente primeiro'}</p>${listaRanking(agrupar(lista, 'setorId', 'vendedorNome'), 'setor')}</section>
+    </div>
+  </div>`;
+}
+
+/* ============================== VISTA: ADMIN ============================== */
+let acessosCache = null;
+function vistaAdmin() {
+  const cfg = estado.dados.config;
+  const linhasPrevia = estado.importacao ? estado.importacao.linhas : null;
+  return `<div class="vista">
+    <div class="cab-vista"><div><h2>Administração</h2><p>Base, senhas e configurações</p></div></div>
+    <div class="grade-2">
+      <section class="painel">
+        <h3>Atualizar a base do dia</h3>
+        <p class="nota">Copie as linhas da planilha da empresa (com o cabeçalho) e cole aqui. Vendas informadas e observações são mantidas.</p>
+        <div class="pilha-form">
+          <textarea class="entrada" id="colarBase" rows="6" placeholder="Cole aqui (Ctrl+V)">${esc(estado.importacao ? estado.importacao.texto : '')}</textarea>
+          ${linhasPrevia ? `<div class="previa">${linhasPrevia.length ? `<span><b>${linhasPrevia.length}</b> clientes lidos · <b>${linhasPrevia.filter(r => !ehExpurgado(r)).length}</b> válidos · ${linhasPrevia.filter(ehExpurgado).length} expurgos</span>` : '<span>Nenhuma linha reconhecida. Confira se copiou o cabeçalho junto.</span>'}</div>` : ''}
+          <label class="lembrar"><input type="checkbox" id="substituirTudo" checked> Substituir a base inteira (clientes que não vieram saem da lista)</label>
+          <label class="campo"><span>Texto da atualização (opcional)</span><input class="entrada" id="carimbo" placeholder="Ex.: 19/11 às 09:30"></label>
+          <button class="btn btn-pri" data-publicar ${linhasPrevia && linhasPrevia.length ? '' : 'disabled'}>Publicar base</button>
+        </div>
+      </section>
+      <section class="painel">
+        <h3>Senhas</h3>
+        <p class="nota">Escolha a regra. Senhas individuais (abaixo) valem mais que a regra.</p>
+        <div class="pilha-form">
+          ${regraSenha('seller', 'Vendedores', 'SAME_AS_SETOR', 'setor', cfgPriv('sellerPassMode') || 'SAME_AS_SETOR')}
+          ${regraSenha('sup', 'Supervisores', 'SAME_AS_MESA', 'mesa', cfgPriv('supPassMode') || 'SAME_AS_MESA')}
+          <label class="campo"><span>Nova senha de administrador (deixe vazio para manter)</span><input class="entrada" id="novaSenhaAdmin" type="password" autocomplete="new-password"></label>
+          <label class="lembrar"><input type="checkbox" id="desconectarTodos"> Desconectar todos os aparelhos (todos entram de novo)</label>
+          <button class="btn btn-pri" data-salvar-senhas>Salvar senhas</button>
+        </div>
+      </section>
+      <section class="painel">
+        <h3>Cálculo</h3>
+        <div class="pilha-form">
+          <div class="campo"><span>Percentuais calculados por</span>
+            <div class="segmentado" role="group">
+              <button type="button" data-calc="ATIVOS" aria-pressed="${cfg.calcMetricMode !== 'CLIENTES'}">Ativos em campo</button>
+              <button type="button" data-calc="CLIENTES" aria-pressed="${cfg.calcMetricMode === 'CLIENTES'}">Clientes</button>
+            </div></div>
+          <label class="campo"><span>HL por caixa</span><input class="entrada" id="fatorCaixa" inputmode="decimal" value="${nf(fator(), 4)}"></label>
+          <button class="btn btn-sec" data-salvar-calculo>Salvar cálculo</button>
+        </div>
+      </section>
+      <section class="painel">
+        <h3>Virada do mês</h3>
+        <p class="nota">Marca o status de hoje como início do novo mês e limpa o histórico diário e os avisos.</p>
+        <button class="btn btn-perigo" data-novo-ciclo>Começar novo mês</button>
+      </section>
+    </div>
+    <section class="painel">
+      <h3>Acessos e senhas individuais</h3>
+      <p class="nota">Senha que vale hoje para cada setor e mesa. Digite uma senha e salve para trocar só a daquela pessoa.</p>
+      <div id="tabelaAcessos">${acessosCache ? tabelaAcessos() : '<div class="esqueleto" style="height:160px"></div>'}</div>
+    </section>
+  </div>`;
+}
+function cfgPriv(k) { return acessosCache && acessosCache.config ? acessosCache.config[k] : ''; }
+function regraSenha(pre, titulo, igual, nomeCod, atual) {
+  const ex = nomeCod === 'mesa' ? '31470' : '15623';
+  const suf = cfgPriv(pre + 'Suffix') || '01', kw = cfgPriv(pre + 'Keyword') || '';
+  return `<div class="campo"><span>${titulo}</span><div class="opcoes">
+    <div class="opcao"><input type="radio" name="${pre}Modo" id="${pre}M1" value="${igual}" ${atual === igual ? 'checked' : ''}><label for="${pre}M1">Igual ao número<small>${nomeCod} ${ex} → senha ${ex}</small></label></div>
+    <div class="opcao"><input type="radio" name="${pre}Modo" id="${pre}M2" value="CODE_PLUS_SUFFIX" ${atual === 'CODE_PLUS_SUFFIX' ? 'checked' : ''}><label for="${pre}M2">Número + final<small>${nomeCod} ${ex} → senha ${ex}${esc(suf)}</small></label>
+      <input class="entrada" id="${pre}Sufixo" value="${esc(suf)}" aria-label="Final da senha" maxlength="6"></div>
+    <div class="opcao"><input type="radio" name="${pre}Modo" id="${pre}M3" value="CUSTOM_KEYWORD" ${atual === 'CUSTOM_KEYWORD' ? 'checked' : ''}><label for="${pre}M3">Palavra-chave única<small>a mesma senha para todos</small></label>
+      <input class="entrada" id="${pre}Chave" value="${esc(kw)}" aria-label="Palavra-chave"></div>
+  </div></div>`;
+}
+function tabelaAcessos() {
+  const lista = acessosCache.acessos.slice().sort((a, b) => a.tipo.localeCompare(b.tipo) || a.codigo.localeCompare(b.codigo));
+  return `<div class="rolagem"><table class="tabela"><thead><tr><th>Perfil</th><th>Código</th><th>Nome</th><th>Senha atual</th><th>Trocar</th></tr></thead><tbody>
+    ${lista.map(a => `<tr><td>${a.tipo === 'VENDEDOR' ? 'Vendedor' : 'Supervisor'}</td><td><b>${esc(a.codigo)}</b></td><td>${esc(a.nome)}</td>
+      <td>${esc(a.senha)}${a.individual ? ' <span class="etq">individual</span>' : ''}</td>
+      <td style="white-space:nowrap"><input class="entrada" data-senha-ind="${a.tipo}|${esc(a.codigo)}" placeholder="nova senha" aria-label="Nova senha de ${esc(a.codigo)}">
+        <button class="btn btn-txt" data-salvar-ind="${a.tipo}|${esc(a.codigo)}">Salvar</button>
+        ${a.individual ? `<button class="btn btn-txt" data-remover-ind="${a.tipo}|${esc(a.codigo)}">Usar a regra</button>` : ''}</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+async function carregarAcessos() {
+  try { acessosCache = await chamar('listarAcessos'); if (estado.aba === 'admin') desenhar(); }
+  catch (e) { avisar(e.message, true); }
+}
+
+/* Leitura da planilha colada (mesmos cabeçalhos aceitos pelo site antigo). */
+function lerColagem(texto) {
+  const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9%]/g, ' ').replace(/\s+/g, ' ').trim();
+  const numBR = v => { const s = String(v || '').trim(); if (!s) return 0; const n = parseFloat(/,/.test(s) ? s.replace(/\./g, '').replace(',', '.') : s); return isNaN(n) ? 0 : n; };
+  let mapa = { mes: 0, regional: 1, idCentro: 2, idOrg: 3, operacao: 4, statusGiro: 5, matriz: 6, idCliente: 7, cliente: 8, cnpj: 9, idGrupo: 10,
+    grupo: 11, categoria: 12, supId: 13, supNome: 14, setorId: 15, vendedorNome: 16, ativos: 17, realHL: 18, metaHL: 19, retornoPct: 20, unir: 21, expurgado: 22 };
+  const regras = [
+    ['mes', h => h === 'mes'], ['regional', h => h.includes('regional')], ['idCentro', h => h.includes('id centro')], ['idOrg', h => h.includes('organizacao')],
+    ['operacao', h => h.includes('operacao')], ['statusGiro', h => h.includes('status giro') || h === 'status'], ['matriz', h => h.includes('matriz')],
+    ['idCliente', h => ['id cliente', 'codigo cliente', 'cod cliente'].includes(h)], ['cliente', h => h === 'cliente' || h === 'nome cliente'],
+    ['cnpj', h => h.includes('cnpj') || h.includes('cpf')], ['idGrupo', h => h.includes('id grupo')], ['grupo', h => h === 'grupo de clientes' || h === 'grupo'],
+    ['categoria', h => h.includes('categoria')], ['supId', h => ['supervisor vendas', 'id supervisor', 'mesa'].includes(h)],
+    ['supNome', h => h.includes('desc') && h.includes('sup')], ['setorId', h => ['setor de vendas', 'setor', 'id setor'].includes(h)],
+    ['vendedorNome', h => h.includes('desc') && h.includes('setor')], ['ativos', h => h.includes('ativos')], ['realHL', h => h.includes('real hl') || h === 'real'],
+    ['metaHL', h => h.includes('meta hl') || h === 'meta'], ['retornoPct', h => h.includes('retorno')], ['unir', h => h === 'unir'],
+    ['expurgado', h => h.includes('expurgado') || h.includes('expurgo')],
+  ];
+  const linhas = [];
+  String(texto || '').replace(/\r\n?/g, '\n').split('\n').forEach(l => {
+    if (!l.trim()) return;
+    const cols = l.split(l.includes('\t') ? '\t' : ';').map(c => c.trim());
+    if (cols.length < 6) return;
+    const junto = norm(cols.join(' '));
+    if (junto.includes('status giro') || junto.includes('id cliente') || junto.includes('ativos em campo')) {
+      const novo = Object.assign({}, mapa);
+      cols.forEach((c, i) => { const h = norm(c); const r = regras.find(([, t]) => t(h)); if (r) novo[r[0]] = i; });
+      mapa = novo;
+      return;
+    }
+    const g = k => cols[mapa[k]] !== undefined ? cols[mapa[k]] : '';
+    const st = g('statusGiro').toUpperCase();
+    const statusGiro = st.includes('ZERO') ? 'GIRO ZERO' : st.includes('EFICIENTE') ? 'GIRO EFICIENTE' : 'BAIXO DESEMPENHO';
+    const idCliente = g('idCliente');
+    if (!idCliente) return;
+    const ativos = Math.max(1, parseInt(g('ativos'), 10) || 1);
+    const realHL = numBR(g('realHL')), metaHL = numBR(g('metaHL')) || ativos * 2;
+    const exp = g('expurgado').toUpperCase();
+    linhas.push({ mes: g('mes'), regional: g('regional'), idCentro: g('idCentro'), idOrg: g('idOrg'), operacao: g('operacao'), statusGiro,
+      matriz: g('matriz'), idCliente, cliente: g('cliente') || 'Cliente ' + idCliente, cnpj: g('cnpj'), idGrupo: g('idGrupo'), grupo: g('grupo'),
+      categoria: g('categoria'), supId: g('supId'), supNome: g('supNome'), setorId: g('setorId'), vendedorNome: g('vendedorNome'), ativos, realHL, metaHL,
+      retornoPct: numBR(g('retornoPct')) || (metaHL > 0 ? Math.round(realHL / metaHL * 100) : 0), unir: g('unir'),
+      expurgado: ['SIM', 'S', 'EXPURGADO', 'TRUE', '1'].includes(exp) ? 'SIM' : 'NAO' });
+  });
+  return linhas;
+}
+
+/* ============================== FOLHA: INFORMAR VENDA ============================== */
+let vendaCliente = null;
+function abrirVenda(id) {
+  vendaCliente = estado.dados.clientes.find(c => c.idCliente === id);
+  if (!vendaCliente) return;
+  const m = metricasCliente(vendaCliente);
+  $('#vendaTitulo').textContent = vendaCliente.cliente;
+  $('#vendaSub').textContent = '#' + vendaCliente.idCliente + ' · ' + (NOME_STATUS[vendaCliente.statusGiro] || '') + ' · faltam ' + m.faltaCx + ' cx para a meta';
+  $('#vendaCaixas').value = 1;
+  $('#vendaObs').value = '';
+  $('#vendaRapidos').innerHTML = [...new Set([5, 10, 20, m.faltaCx].filter(n => n > 0))].slice(0, 4)
+    .map(n => `<button type="button" class="chip" data-caixas="${n}">${n === m.faltaCx ? n + ' cx · bate a meta' : n + ' cx'}</button>`).join('');
+  $$('#vendaPrevisao button').forEach((b, i) => b.setAttribute('aria-pressed', String(i === 1)));
+  previaVenda();
+  const f = $('#folhaVenda');
+  f.classList.remove('fechando');
+  f.style.transform = '';
+  f.showModal();
+}
+function previaVenda() {
+  if (!vendaCliente) return;
+  const cx = Math.max(1, parseInt($('#vendaCaixas').value, 10) || 1);
+  const m = metricasCliente(vendaCliente);
+  const novo = m.real + cx * fator();
+  const falta = Math.max(0, Math.ceil((m.meta - novo) / fator()));
+  $('#vendaPrevia').innerHTML = `<span>Com <b>${cx} cx</b> (+${nf(cx * fator(), 2)} HL): <b>${nf(novo, 2)}</b> / ${nf(m.meta, 1)} HL</span>` +
+    (novo >= m.meta ? `<span class="bate">${icone('check')}Bate a meta do cliente</span>` : `<span>Ainda faltariam ${falta} cx</span>`);
+  $('#vendaConfirmar').textContent = 'Informar ' + cx + ' cx';
+}
+function fecharFolha() {
+  const f = $('#folhaVenda');
+  if (!f.open) return;
+  if (semMovimento()) { f.close(); return; }
+  f.classList.add('fechando');
+  setTimeout(() => { f.close(); f.classList.remove('fechando'); f.style.transform = ''; }, 190);
+}
+function confirmarVenda(ev) {
+  ev.preventDefault();
+  if (!vendaCliente) return;
+  const caixas = Math.max(1, parseInt($('#vendaCaixas').value, 10) || 1);
+  const previsao = ($$('#vendaPrevisao button').find(b => b.getAttribute('aria-pressed') === 'true') || {}).textContent || '';
+  const dados = { idCliente: vendaCliente.idCliente, caixas, previsao, obs: $('#vendaObs').value.trim() };
+  aplicarLocal('informarVenda', dados);
+  enfileirar('informarVenda', dados);
+  fecharFolha();
+  desenhar();
+  avisar(caixas + ' cx informadas em ' + vendaCliente.cliente);
+}
+
+/* Arrastar a folha para baixo para fechar (acompanha o dedo). */
+(function arrastarFolha() {
+  const alca = $('#folhaAlca'), f = $('#folhaVenda');
+  let y0 = null, dy = 0, t0 = 0;
+  alca.addEventListener('pointerdown', e => { y0 = e.clientY; dy = 0; t0 = performance.now(); alca.setPointerCapture(e.pointerId); f.style.transition = 'none'; });
+  alca.addEventListener('pointermove', e => { if (y0 === null) return; dy = Math.max(0, e.clientY - y0); f.style.transform = `translateY(${dy}px)`; });
+  const soltar = () => {
+    if (y0 === null) return;
+    const vel = dy / Math.max(1, performance.now() - t0);
+    f.style.transition = 'transform .25s cubic-bezier(.16,1,.3,1)';
+    if (dy > 110 || vel > 0.6) { f.style.transform = 'translateY(100%)'; setTimeout(() => { f.close(); f.style.transform = ''; f.style.transition = ''; }, 230); }
+    else { f.style.transform = ''; setTimeout(() => { f.style.transition = ''; }, 260); }
+    y0 = null;
+  };
+  alca.addEventListener('pointerup', soltar);
+  alca.addEventListener('pointercancel', soltar);
+})();
+
+/* ============================== PROFUNDIDADE (barra 3D segue o dedo/mouse) ============================== */
+function pos3d() {
+  const barra = $('#barra3d');
+  if (!barra || semMovimento()) return;
+  const palco = barra.parentElement;
+  let raf = 0;
+  palco.addEventListener('pointermove', e => {
+    if (e.pointerType === 'touch') return;
+    const r = palco.getBoundingClientRect();
+    const rel = (e.clientX - r.left) / r.width - 0.5;
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => barra.style.setProperty('--giro-y', (rel * 10).toFixed(2) + 'deg'));
+  });
+  palco.addEventListener('pointerleave', () => barra.style.setProperty('--giro-y', '0deg'));
+}
+
+/* ============================== EVENTOS ============================== */
+document.addEventListener('click', async e => {
+  const b = e.target.closest('button, [data-aba]');
+  if (!b) return;
+  const d = b.dataset;
+  if (d.perfil && b.closest('#formEntrar')) return escolherPerfil(d.perfil);
+  if (d.aba) return irPara(d.aba);
+  if (d.status !== undefined && b.closest('#principal')) {
+    estado.ui.status = estado.ui.status === d.status ? null : d.status; estado.ui.pagina = 1; return desenhar();
+  }
+  if (d.expurgos) { estado.ui.expurgos = d.expurgos; estado.ui.pagina = 1; return desenhar(); }
+  if (d.ordemEquipe) { estado.ui.ordemEquipe = d.ordemEquipe; return desenhar(); }
+  if (d.mais !== undefined) { estado.ui.pagina++; return desenhar(); }
+  if (d.vender) return abrirVenda(d.vender);
+  if (d.limpar) {
+    const dados = { idCliente: d.limpar };
+    aplicarLocal('limparAmarelo', dados); enfileirar('limparAmarelo', dados); desenhar();
+    return avisar('Venda desfeita.');
+  }
+  if (d.verSetor) { Object.assign(estado.ui, { setor: d.verSetor, status: null, pagina: 1 }); document.body.classList.remove('apresentacao'); return irPara('carteira'); }
+  if (d.verMesa) { Object.assign(estado.ui, { mesa: d.verMesa, setor: '' }); return desenhar(); }
+  if (d.apresentar !== undefined) {
+    const on = document.body.classList.toggle('apresentacao');
+    if (on && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
+    if (!on && document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    return;
+  }
+  if (d.caixas) { $('#vendaCaixas').value = d.caixas; return previaVenda(); }
+  if (d.passo) { const i = $('#vendaCaixas'); i.value = Math.max(1, (parseInt(i.value, 10) || 1) + Number(d.passo)); return previaVenda(); }
+  if (b.closest('#vendaPrevisao')) { $$('#vendaPrevisao button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); return; }
+  if (d.calc) { $$('[data-calc]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); return; }
+  if (b.id === 'vendaCancelar') return fecharFolha();
+  if (b.id === 'btnSair') return sair();
+  if (b.id === 'pilulaSinc' || b.id === 'btnTentar') { await enviarPendentes(); return carregarDados(); }
+  if (d.confirmarAmarelos !== undefined) return acaoAdmin(b, 'confirmarAmarelos', {}, r => r.confirmados + ' saída(s) confirmada(s).', 'Confirmar a saída de todos os clientes em amarelo? O volume informado será somado ao real.');
+  if (d.publicar !== undefined) {
+    const imp = estado.importacao;
+    return acaoAdmin(b, 'importarBase', { linhas: imp.linhas, substituirTudo: $('#substituirTudo').checked, carimbo: $('#carimbo').value },
+      r => { estado.importacao = null; return `Base publicada: ${r.total} clientes (${r.validos} válidos). ${r.sairamDoZero} saíram do zero.`; });
+  }
+  if (d.salvarSenhas !== undefined) {
+    const modo = p => ($(`input[name="${p}Modo"]:checked`) || {}).value;
+    const config = { sellerPassMode: modo('seller'), sellerSuffix: $('#sellerSufixo').value, sellerKeyword: $('#sellerChave').value,
+      supPassMode: modo('sup'), supSuffix: $('#supSufixo').value, supKeyword: $('#supChave').value };
+    const nova = $('#novaSenhaAdmin').value.trim();
+    if (nova) config.adminPass = nova;
+    return acaoAdmin(b, 'salvarConfig', { config, desconectarTodos: $('#desconectarTodos').checked }, () => { carregarAcessos(); return 'Senhas salvas.'; });
+  }
+  if (d.salvarCalculo !== undefined) {
+    const calc = ($('[data-calc][aria-pressed="true"]') || {}).dataset.calc;
+    return acaoAdmin(b, 'salvarConfig', { config: { calcMetricMode: calc, boxFactorHL: String($('#fatorCaixa').value).replace(',', '.') } }, () => 'Cálculo salvo.');
+  }
+  if (d.novoCiclo !== undefined) return acaoAdmin(b, 'novoCiclo', {}, () => 'Novo mês iniciado.', 'Começar um novo mês? O status de hoje vira o início do mês e o histórico diário é limpo.');
+  if (d.salvarInd || d.removerInd) {
+    const [tipo, codigo] = (d.salvarInd || d.removerInd).split('|');
+    const senha = d.salvarInd ? ($(`[data-senha-ind="${tipo}|${codigo}"]`).value || '').trim() : '';
+    if (d.salvarInd && !senha) return avisar('Digite a nova senha antes de salvar.', true);
+    return acaoAdmin(b, 'definirSenha', { tipo, codigo, senha }, () => { carregarAcessos(); return senha ? 'Senha de ' + codigo + ' trocada.' : codigo + ' volta a usar a regra.'; });
+  }
+});
+
+async function acaoAdmin(botao, acao, dados, sucesso, pergunta) {
+  if (pergunta && !confirm(pergunta)) return;
+  const txt = botao.innerHTML;
+  botao.disabled = true; botao.innerHTML = '<i class="giro"></i> Salvando…';
+  try {
+    const r = await chamar(acao, dados);
+    avisar(sucesso(r));
+    await carregarDados();
+  } catch (e) {
+    if (e.sessao) return sairPorSessao(e.message);
+    avisar(e.message, true);
+  } finally {
+    if (document.body.contains(botao)) { botao.disabled = false; botao.innerHTML = txt; }
+  }
+}
+
+let atrasoBusca = 0;
+document.addEventListener('input', e => {
+  if (e.target.id === 'busca') {
+    clearTimeout(atrasoBusca);
+    atrasoBusca = setTimeout(() => { estado.ui.busca = e.target.value; estado.ui.pagina = 1; desenhar(); }, 180);
+  }
+  if (e.target.id === 'vendaCaixas') previaVenda();
+  if (e.target.id === 'colarBase') {
+    clearTimeout(atrasoBusca);
+    const texto = e.target.value;
+    atrasoBusca = setTimeout(() => { estado.importacao = texto.trim() ? { texto, linhas: lerColagem(texto) } : null; desenhar(); }, 300);
+  }
+});
+document.addEventListener('change', e => {
+  const f = e.target.dataset && e.target.dataset.filtro;
+  if (!f) return;
+  estado.ui[f] = e.target.value;
+  if (f === 'mesa') estado.ui.setor = '';
+  estado.ui.pagina = 1;
+  desenhar();
+});
+$('#formEntrar').addEventListener('submit', entrar);
+$('#formVenda').addEventListener('submit', confirmarVenda);
+$('#folhaVenda').addEventListener('click', e => { if (e.target === e.currentTarget) fecharFolha(); });
+$('#folhaVenda').addEventListener('cancel', e => { e.preventDefault(); fecharFolha(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.body.classList.contains('apresentacao')) document.body.classList.remove('apresentacao'); });
+window.addEventListener('online', enviarPendentes);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && estado.sessao && estado.dados) { enviarPendentes(); carregarDados(true); } });
+setInterval(() => { if (estado.sessao && estado.dados && !document.hidden) { enviarPendentes(); carregarDados(true); } }, ATUALIZAR_A_CADA_SEG * 1000);
+const _irPara = irPara;
+irPara = aba => { _irPara(aba); if (aba === 'admin' && !acessosCache) carregarAcessos(); };
+
+/* =============================================================================
+   MODO DEMONSTRAÇÃO — nuvem de mentira com dados fictícios (só quando URL_NUVEM está vazia).
+   Responde igual ao Apps Script, para o site funcionar do mesmo jeito.
+   ============================================================================= */
+const Demo = (() => {
+  const CHAVE = 'giro_demo_v1';
+  function aleatorio(semente) { return () => { semente |= 0; semente = semente + 0x6D2B79F5 | 0; let t = Math.imul(semente ^ semente >>> 15, 1 | semente); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function gerar() {
+    const r = aleatorio(20261119);
+    const pega = a => a[Math.floor(r() * a.length)];
+    const nomes = ['Ana', 'Bruno', 'Carla', 'Diego', 'Elaine', 'Fábio', 'Gisele', 'Hugo', 'Iara', 'João', 'Kátia', 'Lucas', 'Márcia', 'Nelson', 'Olívia', 'Paulo', 'Quésia', 'Raul', 'Sônia', 'Tiago', 'Úrsula', 'Vítor', 'Wanda', 'Yuri', 'Zeca', 'Rita', 'Caio', 'Lia', 'Davi'];
+    const sobren = ['Souza', 'Lima', 'Costa', 'Ramos', 'Pinto', 'Barros', 'Teixeira', 'Moraes', 'Cardoso', 'Farias'];
+    const tipos = [['Bar do', 'Bar/Especiais'], ['Bar da', 'Bar/Especiais'], ['Adega', 'Adega'], ['Mercadinho', 'Tradicional'], ['Mercearia', 'Tradicional'],
+      ['Restaurante', 'Restaurantes'], ['Espetinho do', 'Bar/Especiais'], ['Conveniência', 'Adega'], ['Supermercado', 'Auto Serviço'], ['Lanchonete', 'Restaurantes']];
+    const apelidos = ['Zé', 'Neto', 'Baixinho', 'Gordo', 'Pará', 'Rio', 'Sol', 'Ponte', 'Esquina', 'Praça', 'Lago', 'Galo', 'Bené', 'Tonho', 'Preta', 'Lua', 'Porto', 'Vila'];
+    const clientes = [];
+    let idc = 4100000, setorN = 70101;
+    for (let m = 0; m < 7; m++) {
+      const mesa = String(90100 + m), supNome = pega(nomes) + ' ' + pega(sobren);
+      const nSet = m < 1 ? 4 : m === 6 ? 1 : 5;
+      for (let s = 0; s < nSet && setorN < 70130; s++) {
+        const setor = String(setorN++), vend = nomes[(setorN * 7) % nomes.length] + ' ' + pega(sobren);
+        const nCli = 16 + Math.floor(r() * 12);
+        const qualidade = 0.25 + r() * 0.5;
+        for (let k = 0; k < nCli; k++) {
+          const [tipo, cat] = pega(tipos);
+          const ativos = r() < 0.82 ? 1 : r() < 0.7 ? 2 : 3;
+          const meta = ativos * 2;
+          const x = r();
+          const status = x < 0.2 * (1.3 - qualidade) ? 'GIRO ZERO' : x < 0.55 - qualidade * 0.3 ? 'BAIXO DESEMPENHO' : 'GIRO EFICIENTE';
+          const real = status === 'GIRO ZERO' ? 0 : status === 'BAIXO DESEMPENHO' ? +(meta * (0.1 + r() * 0.8)).toFixed(2) : +(meta * (1 + r() * 0.9)).toFixed(2);
+          const ini = status === 'GIRO EFICIENTE' && r() < 0.35 ? (r() < 0.4 ? 'GIRO ZERO' : 'BAIXO DESEMPENHO') : status === 'BAIXO DESEMPENHO' && r() < 0.3 ? 'GIRO ZERO' : status === 'GIRO ZERO' && r() < 0.1 ? 'BAIXO DESEMPENHO' : status;
+          idc += 1 + Math.floor(r() * 900);
+          const amarelo = status !== 'GIRO EFICIENTE' && r() < 0.05;
+          clientes.push({ idCliente: String(idc).padStart(7, '0'), cliente: (tipo + ' ' + pega(apelidos) + (r() < 0.3 ? ' ' + pega(sobren) : '')).toUpperCase(),
+            cnpj: '99.' + String(Math.floor(r() * 1e3)).padStart(3, '0') + '.' + String(Math.floor(r() * 1e3)).padStart(3, '0') + '/0001-' + String(Math.floor(r() * 100)).padStart(2, '0'),
+            setorId: setor, vendedorNome: vend, supId: mesa, supNome, statusGiro: status, expurgado: r() < 0.08 ? 'SIM' : 'NAO', categoria: cat, matriz: pega(['BRONZE', 'PRATA', 'OURO', 'DIAMANTE']),
+            grupo: cat, idGrupo: 'B4', ativos, realHL: real, metaHL: meta, retornoPct: Math.round(real / meta * 100), monthStartStatus: ini, monthStartHL: ini === 'GIRO ZERO' ? 0 : real * 0.6,
+            prevStatus: status, prevHL: real, vendaInformada: amarelo, vendaCaixas: amarelo ? 2 + Math.floor(r() * 12) : 0, vendaPrevisao: amarelo ? 'Amanhã' : '',
+            vendaObs: amarelo ? 'Pedido fechado, aguardando faturamento.' : '', vendaAutor: amarelo ? 'Setor ' + setor : '', vendaData: amarelo ? new Date(Date.now() - r() * 864e5).toISOString() : '',
+            saidaConfirmada: ini !== status && status === 'GIRO EFICIENTE', mes: 'Nov', regional: 'DIR REG NORDESTE N', idCentro: '0026', idOrg: '5087', operacao: 'CDA BENEVIDES', unir: '' });
+        }
+      }
+    }
+    const historico = [];
+    for (let d = 1; d <= 18; d++) {
+      const z = 25.5 - d * 0.42 + (r() - 0.5) * 0.8, e = 39 + d * 0.62 + (r() - 0.5) * 0.9;
+      historico.push({ dateLabel: String(d).padStart(2, '0') + '/11', zeroPct: +z.toFixed(2), eficPct: +e.toFixed(2), baixoPct: +(100 - z - e).toFixed(2) });
+    }
+    return { clientes, historico, alertas: [{ id: 'a1', type: 'SAIDA_CONFIRMADA', title: '🎉 Evolução do Dia: 6 saíram do Zero | 9 p/ Eficiente!', desc: 'Atualização de 18/11 registrada na série do mês.', time: '18/11 09:26' }],
+      config: { adminPass: 'demo', sellerPassMode: 'SAME_AS_SETOR', sellerSuffix: '01', sellerKeyword: '', supPassMode: 'SAME_AS_MESA', supSuffix: '01', supKeyword: '',
+        calcMetricMode: 'ATIVOS', boxFactorHL: 0.0396, lastUpdateLabel: 'Hoje (19/11) às 09:26 · demonstração', dataVersion: '1' }, senhas: [] };
+  }
+  let db = ler(CHAVE, null) || gerar();
+  const salvar = () => { db.config.dataVersion = String(Date.now()); gravar(CHAVE, db); };
+  const espera = () => new Promise(r => setTimeout(r, 220 + Math.random() * 280));
+  const senhaDe = (perfil, codigo) => {
+    const ind = db.senhas.find(s => s.tipo === perfil && s.codigo === codigo);
+    if (ind) return ind.senha;
+    const p = perfil === 'VENDEDOR' ? 'seller' : 'sup', modo = db.config[p + 'PassMode'];
+    return modo === 'CUSTOM_KEYWORD' ? db.config[p + 'Keyword'] : modo === 'CODE_PLUS_SUFFIX' ? codigo + db.config[p + 'Suffix'] : codigo;
+  };
+  const sessaoDe = t => { try { return JSON.parse(atob(t)); } catch (e) { return null; } };
+  const vePode = (s, c) => s.p === 'ADMIN' || (s.p === 'VENDEDOR' ? c.setorId === s.c : c.supId === s.c);
+  const alerta = a => { db.alertas.unshift(Object.assign({ id: 'a' + Date.now(), time: new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) }, a)); db.alertas = db.alertas.slice(0, 80); };
+  async function chamar(b) {
+    await espera();
+    if (b.acao === 'entrar') {
+      if (b.perfil === 'ADMIN') return b.senha === db.config.adminPass ? { ok: true, token: btoa(JSON.stringify({ p: 'ADMIN', c: 'ADMIN' })), perfil: 'ADMIN', codigo: 'ADMIN', nome: 'Administrador' } : { ok: false, erro: 'Número ou senha incorretos.' };
+      const campo = b.perfil === 'VENDEDOR' ? 'setorId' : 'supId';
+      const achado = db.clientes.find(c => c[campo] === b.codigo);
+      if (!achado || b.senha !== senhaDe(b.perfil, b.codigo)) return { ok: false, erro: 'Número ou senha incorretos.' };
+      return { ok: true, token: btoa(JSON.stringify({ p: b.perfil, c: b.codigo })), perfil: b.perfil, codigo: b.codigo, nome: b.perfil === 'VENDEDOR' ? achado.vendedorNome : achado.supNome };
+    }
+    const s = sessaoDe(b.token);
+    if (!s) return { ok: false, erro: 'Seu acesso expirou. Entre novamente.' };
+    const admin = s.p === 'ADMIN';
+    const cfgPublica = () => ({ calcMetricMode: db.config.calcMetricMode, boxFactorHL: db.config.boxFactorHL, lastUpdateLabel: db.config.lastUpdateLabel, dataVersion: db.config.dataVersion });
+    switch (b.acao) {
+      case 'dados':
+        if (b.desde && b.desde === db.config.dataVersion) return { ok: true, semMudancas: true, dataVersion: db.config.dataVersion };
+        return { ok: true, perfil: s.p, codigo: s.c, config: cfgPublica(), clientes: JSON.parse(JSON.stringify(db.clientes.filter(c => vePode(s, c)))), historico: db.historico, alertas: db.alertas, dataVersion: db.config.dataVersion };
+      case 'informarVenda': case 'limparAmarelo': {
+        const c = db.clientes.find(x => x.idCliente === b.idCliente);
+        if (!c) return { ok: false, erro: 'Cliente não encontrado.' };
+        if (!vePode(s, c)) return { ok: false, erro: 'Este cliente não pertence à sua carteira.' };
+        const autor = admin ? 'Administrador' : (s.p === 'VENDEDOR' ? 'Setor ' : 'Mesa ') + s.c;
+        if (b.acao === 'informarVenda') {
+          Object.assign(c, { vendaInformada: true, vendaCaixas: b.caixas, vendaPrevisao: b.previsao, vendaObs: b.obs || 'Venda informada de ' + b.caixas + ' caixas aguardando faturamento.', vendaAutor: autor, vendaData: new Date().toISOString() });
+          alerta({ type: 'AMARELO', title: '🟡 Venda Informada (+' + b.caixas + ' cx) — ' + c.cliente, desc: autor + ' marcou venda. Previsão: ' + b.previsao + '.' });
+        } else Object.assign(c, { vendaInformada: false, vendaCaixas: 0, vendaObs: '', vendaPrevisao: '' });
+        salvar();
+        return { ok: true, cliente: JSON.parse(JSON.stringify(c)), dataVersion: db.config.dataVersion };
+      }
+    }
+    if (!admin) return { ok: false, erro: 'Apenas o administrador pode fazer isso.' };
+    switch (b.acao) {
+      case 'confirmarAmarelos': {
+        let n = 0;
+        db.clientes.forEach(c => {
+          if (!c.vendaInformada) return;
+          c.prevStatus = c.statusGiro; c.prevHL = c.realHL; c.realHL = +(c.realHL + c.vendaCaixas * db.config.boxFactorHL).toFixed(2);
+          if (c.realHL >= c.metaHL) { c.statusGiro = 'GIRO EFICIENTE'; c.saidaConfirmada = true; } else if (c.realHL > 0) c.statusGiro = 'BAIXO DESEMPENHO';
+          c.vendaInformada = false; n++;
+        });
+        if (n) alerta({ type: 'SAIDA_CONFIRMADA', title: '✅ ' + n + ' Saída(s) Confirmada(s)!', desc: n + ' cliente(s) com sinal amarelo tiveram o volume confirmado.' });
+        salvar(); return { ok: true, confirmados: n };
+      }
+      case 'importarBase': {
+        const mapa = new Map(db.clientes.map(c => [c.idCliente, c]));
+        let sairamDoZero = 0;
+        const novos = b.linhas.map(l => {
+          const a = mapa.get(l.idCliente);
+          if (!a) return Object.assign({ monthStartStatus: l.statusGiro, monthStartHL: l.realHL, prevStatus: l.statusGiro, prevHL: l.realHL, vendaInformada: false, vendaCaixas: 0, vendaObs: '', vendaPrevisao: '', vendaAutor: '', vendaData: '', saidaConfirmada: false }, l);
+          const saiu = a.statusGiro === 'GIRO ZERO' && l.statusGiro !== 'GIRO ZERO', efic = a.statusGiro !== 'GIRO EFICIENTE' && l.statusGiro === 'GIRO EFICIENTE';
+          if (saiu) sairamDoZero++;
+          return Object.assign({}, a, l, { prevStatus: a.statusGiro, prevHL: a.realHL, saidaConfirmada: saiu || efic || a.saidaConfirmada, vendaInformada: (saiu || efic) ? false : a.vendaInformada });
+        });
+        if (!b.substituirTudo) db.clientes.forEach(c => { if (!b.linhas.some(l => l.idCliente === c.idCliente)) novos.push(c); });
+        db.clientes = novos;
+        const validos = novos.filter(c => c.expurgado !== 'SIM').length;
+        db.config.lastUpdateLabel = b.carimbo || 'Hoje às ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) + ' (' + validos + ' válidos • ' + (novos.length - validos) + ' expurgos)';
+        salvar(); return { ok: true, total: novos.length, validos, sairamDoZero };
+      }
+      case 'salvarConfig': Object.assign(db.config, b.config); if (b.config.boxFactorHL) db.config.boxFactorHL = Number(b.config.boxFactorHL); salvar(); return { ok: true };
+      case 'listarAcessos': {
+        const vistos = new Set(), acessos = [];
+        db.clientes.forEach(c => [['VENDEDOR', c.setorId, c.vendedorNome], ['SUPERVISOR', c.supId, c.supNome]].forEach(([t, cod, nome]) => {
+          if (vistos.has(t + cod)) return; vistos.add(t + cod);
+          acessos.push({ tipo: t, codigo: cod, nome, senha: senhaDe(t, cod), individual: db.senhas.some(x => x.tipo === t && x.codigo === cod) });
+        }));
+        const { adminPass, ...cfg } = db.config;
+        return { ok: true, acessos, config: cfg };
+      }
+      case 'definirSenha': db.senhas = db.senhas.filter(x => !(x.tipo === b.tipo && x.codigo === b.codigo)); if (b.senha) db.senhas.push({ tipo: b.tipo, codigo: b.codigo, senha: b.senha }); salvar(); return { ok: true };
+      case 'novoCiclo': db.clientes.forEach(c => { c.monthStartStatus = c.statusGiro; c.monthStartHL = c.realHL; c.saidaConfirmada = false; }); db.historico = []; db.alertas = []; salvar(); return { ok: true };
+    }
+    return { ok: false, erro: 'Ação desconhecida.' };
+  }
+  return { chamar, reiniciar: () => { localStorage.removeItem(CHAVE); db = gerar(); } };
+})();
+
+/* ============================== INÍCIO ============================== */
+if (estado.sessao && estado.sessao.token) abrirApp(); else prepararEntrada();
+</script>
+</body>
+</html>

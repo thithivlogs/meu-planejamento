@@ -66,7 +66,12 @@ Arquivos: `docs/giro-foco/codigo-atual/Codigo-apps-script.gs` (Apps Script) e `a
 - API (POST, corpo JSON em `text/plain`, sem `no-cors`): `entrar`, `dados` (com `desde` para atualização leve),
   `informarVenda`, `limparAmarelo`, e para admin `confirmarAmarelos`, `importarBase`, `salvarCliente`,
   `excluirCliente`, `salvarConfig`, `listarAcessos`, `definirSenha`, `novoCiclo`.
-- **Próximo:** URL `/exec` da implantação de teste (o usuário envia) → site novo (seções 4 e 5).
+- **Site novo (prévia para aprovação):** `giro-foco/site/index.html` — arquivo único, sem CDN. Sem `URL_NUVEM`
+  abre em modo demonstração (dados fictícios no localStorage; vendedor 70101/70101, supervisor 90100/90100, admin `demo`).
+  Fila de envios pendentes (nada se perde sem internet), cópia local da carteira, atualização a cada 90 s.
+  Teste de ponta a ponta com a nuvem real no simulador: `node giro-foco/testes/site-com-nuvem.e2e.js`.
+- **Combinado com o usuário (19/11):** testar primeiro com **planilha nova e link novo**; depois de aprovado o
+  visual, criar a planilha de teste, ligar o Apps Script e só então pensar na troca do site oficial.
 
 ## 3. Acesso (sem login de plataforma)
 
