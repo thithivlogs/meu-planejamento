@@ -116,7 +116,7 @@ function criarAmbiente({ propriedades = {} } = {}) {
       formatDate: (d, _tz, fmt) => {
         const p = n => String(n).padStart(2, '0');
         return fmt.replace('dd', p(d.getUTCDate())).replace('MM', p(d.getUTCMonth() + 1)).replace('yyyy', d.getUTCFullYear())
-          .replace('HH', p(d.getUTCHours())).replace('mm', p(d.getUTCMinutes()));
+          .replace('HH', p(d.getUTCHours())).replace('mm', p(d.getUTCMinutes())).replace('ss', p(d.getUTCSeconds()));
       },
     },
     Logger: { log: () => {} },

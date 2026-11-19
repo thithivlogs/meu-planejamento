@@ -18,7 +18,7 @@
 
 // ============================== CONFIGURAÇÕES ==============================
 
-var VERSAO_API = '2.1.0';
+var VERSAO_API = '2.1.1';
 var CHAVE_ESTADO_ANTIGO = 'GIRO_CDA_CLOUD_STATE';
 var DIAS_VALIDADE_ACESSO = 30;          // por quantos dias o aparelho fica conectado
 var MAX_TENTATIVAS_ERRADAS = 8;         // tentativas de senha errada antes de bloquear por 10 minutos
@@ -694,7 +694,7 @@ function registrarLog(quem, acao, idCliente, detalhes) {
   garantirTamanho(aba, aba.getLastRow() + 1, CAMPOS_LOG.length);
   // Formato texto puro: sem isso a planilha converte a data e os códigos sozinha.
   aba.getRange(aba.getLastRow() + 1, 1, 1, CAMPOS_LOG.length).setNumberFormat('@')
-    .setValues([objetoParaLinha({ quando: new Date().toISOString(), quem: quem, acao: acao,
+    .setValues([objetoParaLinha({ quando: Utilities.formatDate(new Date(), FUSO, 'dd/MM/yyyy HH:mm:ss'), quem: quem, acao: acao,
       idCliente: idCliente || '', detalhes: String(detalhes || '').slice(0, 5000) }, CAMPOS_LOG)]);
 }
 

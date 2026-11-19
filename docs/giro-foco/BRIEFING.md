@@ -76,6 +76,13 @@ Arquivos: `docs/giro-foco/codigo-atual/Codigo-apps-script.gs` (Apps Script) e `a
 - **Planilha nova de teste (19/11):** "Giro foco oficial nuvem", ID `1Ct7gS41xwf8fKFGaOXciSRNCtGal3IrBXwYuGKHFfZQ`,
   fuso America/Belem, abas criadas e formatadas pelo Claude (Clientes vazia). Próximo: o usuário cola o Apps Script,
   cria a implantação e envia a URL `/exec`; então ligar `URL_NUVEM` no site e testar ao vivo.
+- **Nuvem ao vivo (19/11):** implantação da planilha nova:
+  `https://script.google.com/macros/s/AKfycbxsTjYIY5IT88e4_vtzk34zlDgmLtVFIKd6-raA7qjQlXbXfeTUwluHxfPFQI8Gn-K26Q/exec`
+  (versão implantada 2.1.0; o código no repositório é 2.1.1, só muda o horário do Log para Belém).
+  Testado ao vivo com 3 clientes fictícios (setor 99901 / mesa 99900): entrar, importar, informar venda com embalagem,
+  supervisor, atualização leve; depois os dados de teste foram apagados. Cada chamada leva 2–7 s (normal do Apps Script).
+  Node no ambiente precisa de `NODE_USE_ENV_PROXY=1 NODE_EXTRA_CA_CERTS=/root/.ccr/ca-bundle.crt` para chamar a URL.
+- **Site para o Google Sites:** `giro-foco/site/versao-google-sites.html`, gerado por `gerar-versao-google-sites.js <URL>`.
 - **Embalagens (pedido do usuário, 19/11):** aba `Embalagens` (nome, ml, unidades, ativa; padrão 330ml c/12, 330ml c/24,
   600ml c/12, 600ml c/24). HL do pacote = ml × unidades ÷ 100.000. Venda guarda `vendaEmbalagem` + `vendaHL` (colunas
   novas no FIM de Clientes) e "confirmar amarelos" soma o `vendaHL` exato. No site: "Calcular em" (falta em pacotes da

@@ -16,6 +16,21 @@ quando o admin cola a planilha da empresa no site. **Não precisa rodar a migra�
 Para atualizar o código depois: cole o código novo, salve e use **Implantar → Gerenciar implantações → lápis →
 Versão: Nova versão → Implantar**. Assim a URL `/exec` continua a mesma.
 
+### Colocar o site no Google Sites (link novo, para teste)
+
+1. Gere o arquivo do site ligado na nuvem (o Claude já gerou para a URL atual):
+   `node giro-foco/site/gerar-versao-google-sites.js <URL /exec>` → `giro-foco/site/versao-google-sites.html`.
+2. Abra o Google Sites e crie um **site novo** (ou uma página nova) para o teste.
+3. **Inserir → Incorporar → aba "Incorporar código"**, cole **todo** o conteúdo de `versao-google-sites.html` → **Avançar → Inserir**.
+4. Arraste as bordas do bloco para ocupar **a largura toda** e deixe-o **bem alto** (o site rola por dentro do bloco).
+5. **Publicar** → escolha o endereço → confira em *Gerenciar acesso* que qualquer pessoa com o link pode ver.
+6. Abra no celular, entre como **Admin** e cole a base do dia (Admin → Atualizar a base do dia → Publicar base).
+
+### Atualizar o Apps Script sem mudar a URL
+
+Cole o código novo em `Código.gs`, salve e vá em **Implantar → Gerenciar implantações → lápis (editar) →
+Versão: Nova versão → Implantar**. A URL `/exec` continua a mesma e o site não precisa mudar.
+
 ---
 
 ## (Alternativa) Usar a planilha antiga, migrando os dados
