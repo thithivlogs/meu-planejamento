@@ -13,6 +13,10 @@ Responda sempre em português do Brasil.
   - **Problema conhecido:** o JSON passa do limite de uma célula e é cortado em 45.000 caracteres (JSON inválido, só ~62 clientes de ~640). A correção planejada é gravar uma linha por cliente.
   - O JSON contém senhas (`adminPass`). Nunca as exiba, copie para commits ou envie para serviços externos.
 
+### Briefing completo do Giro Foco (sempre carregado)
+
+@docs/giro-foco/BRIEFING.md
+
 ## Fluxo de design para sites (evitar "cara de IA")
 
 Skills instaladas em `.claude/skills` (versões travadas em `skills-lock.json`; atualizar com `npx skills update -p`):
