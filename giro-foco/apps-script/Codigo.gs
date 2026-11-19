@@ -623,6 +623,7 @@ function adicionarAlerta(a) {
 
 function registrarLog(quem, acao, idCliente, detalhes) {
   var aba = obterAba(ABA.log, CAMPOS_LOG);
+  garantirTamanho(aba, aba.getLastRow() + 1, CAMPOS_LOG.length);
   // Formato texto puro: sem isso a planilha converte a data e os códigos sozinha.
   aba.getRange(aba.getLastRow() + 1, 1, 1, CAMPOS_LOG.length).setNumberFormat('@')
     .setValues([objetoParaLinha({ quando: new Date().toISOString(), quem: quem, acao: acao,
@@ -696,11 +697,20 @@ function conferirMigracao() {
 
 // ============================== PLANILHA (leitura/gravação em lote) ==============================
 
+/** Aba nova do Google nasce com 1000 linhas x 26 colunas; gravar fora disso dá erro. Aumenta quando precisar. */
+function garantirTamanho(aba, linhas, colunas) {
+  var maxL = aba.getMaxRows();
+  if (linhas > maxL) aba.insertRowsAfter(maxL, Math.max(linhas - maxL, 200));
+  var maxC = aba.getMaxColumns();
+  if (colunas > maxC) aba.insertColumnsAfter(maxC, colunas - maxC);
+}
+
 function obterAba(nome, campos) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var aba = ss.getSheetByName(nome);
   if (!aba) {
     aba = ss.insertSheet(nome);
+    garantirTamanho(aba, 2, campos.length);
     aba.getRange(1, 1, 1, campos.length).setValues([campos.map(function (c) { return c[0]; })]).setFontWeight('bold');
     aba.setFrozenRows(1);
   }
@@ -720,6 +730,7 @@ function gravarTabela(nome, campos, objetos) {
   var aba = obterAba(nome, campos);
   var antigas = aba.getLastRow() - 1;
   var n = objetos.length;
+  garantirTamanho(aba, n + 1, campos.length);
   if (n > 0) {
     // Colunas de texto ficam com formato "texto puro" para não perder zeros à esquerda.
     campos.forEach(function (c, i) {
@@ -759,6 +770,7 @@ function gravarConfig(mudancas) {
     var idx = chaves.indexOf(k);
     var linha = idx >= 0 ? idx + 2 : aba.getLastRow() + 1;
     if (idx < 0) chaves.push(k);
+    garantirTamanho(aba, linha, 2);
     aba.getRange(linha, 1, 1, 2).setNumberFormat('@').setValues([[k, String(mudancas[k])]]);
   });
 }

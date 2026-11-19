@@ -1,9 +1,29 @@
-# Instalar a nova nuvem do Giro Foco (sem afetar o site atual)
+# Instalar a nova nuvem do Giro Foco
+
+## Planilha de teste já preparada: "Giro foco oficial nuvem"
+
+ID `1Ct7gS41xwf8fKFGaOXciSRNCtGal3IrBXwYuGKHFfZQ`. As abas Leia-me, Clientes, Config, Senhas, Historico, Alertas e Log
+já existem, com cabeçalhos, colunas de texto puro e o tamanho certo. A aba Clientes começa vazia: a base entra
+quando o admin cola a planilha da empresa no site. **Não precisa rodar a migração nesta planilha.**
+
+1. Abra a planilha **Giro foco oficial nuvem** → **Extensões → Apps Script**.
+2. Apague o que estiver no arquivo `Código.gs`, cole todo o conteúdo de [`apps-script/Codigo.gs`](apps-script/Codigo.gs) e **Salvar**.
+3. **Implantar → Nova implantação** → engrenagem → **App da Web**.
+   Descrição `Giro Foco v2`; Executar como **Eu**; Quem pode acessar **Qualquer pessoa** → **Implantar**.
+4. Na primeira vez o Google pede autorização: *Autorizar acesso* → sua conta → *Avançado* → *Acessar (não seguro)* → *Permitir*.
+5. Copie a **URL do app da Web** (termina em `/exec`) e mande para o Claude, que liga o site nela e testa.
+
+Para atualizar o código depois: cole o código novo, salve e use **Implantar → Gerenciar implantações → lápis →
+Versão: Nova versão → Implantar**. Assim a URL `/exec` continua a mesma.
+
+---
+
+## (Alternativa) Usar a planilha antiga, migrando os dados
 
 O site atual continua funcionando normalmente durante todo o processo.
 A implantação oficial do Apps Script fica "congelada" na versão antiga até o dia da troca.
 
-## 1. Colar o código novo
+### 1. Colar o código novo
 
 1. Abra a planilha **Giro foco - Planilha/nuvem** → **Extensões → Apps Script**.
 2. Antes de tudo, copie o código antigo para um bloco de notas (backup).
@@ -13,7 +33,7 @@ A implantação oficial do Apps Script fica "congelada" na versão antiga até o
 > ⚠️ **Não** mexa em *Implantar → Gerenciar implantações* da implantação que já existe.
 > Ela continua rodando o código antigo e o site atual depende dela.
 
-## 2. Copiar os dados para as abas novas
+### 2. Copiar os dados para as abas novas
 
 1. No topo do editor, na caixa de funções, escolha **`migrarDadosAntigos`** e clique em **Executar**.
 2. Na primeira vez o Google pede autorização: *Revisar permissões* → escolha sua conta → *Avançado* →
@@ -25,14 +45,14 @@ A implantação oficial do Apps Script fica "congelada" na versão antiga até o
 
 A aba antiga `Nuvem_Giro` e o estado antigo não são apagados — continuam como backup.
 
-## 3. Criar uma implantação de TESTE
+### 3. Criar uma implantação de TESTE
 
 1. **Implantar → Nova implantação** → engrenagem → **App da Web**.
 2. Descrição: `Giro Foco v2 (teste)`. Executar como: **Eu**. Quem pode acessar: **Qualquer pessoa**.
 3. **Implantar** e copie a **URL do app da Web** (termina em `/exec`).
 4. Mande essa URL para o Claude. Ela é usada só pelo site novo durante os testes.
 
-## No dia da troca (depois de aprovar o site novo)
+### No dia da troca (depois de aprovar o site novo)
 
 1. Execute **`migrarDadosAntigosForcando`** (traz o que o site antigo gravou até aquele momento) e depois **`conferirMigracao`**.
 2. Troque o código do bloco *Incorporar* do Google Sites pelo site novo e publique o Sites. O link continua o mesmo.

@@ -239,3 +239,10 @@ test('com dados reais do estado antigo (opcional, só local)', { skip: !process.
   const tamanho = JSON.stringify(amb.post({ acao: 'dados', token: entrar(amb, 'ADMIN', '', estado.adminPass) })).length;
   console.log(`  resposta completa do admin: ${(tamanho / 1024).toFixed(0)} KB; supervisor: ${(JSON.stringify(sup).length / 1024).toFixed(0)} KB`);
 });
+
+test('abas crescem sozinhas: Clientes com 36 colunas e Log com mais de 1000 linhas', () => {
+  const amb = ambienteMigrado();
+  assert.ok(amb.abas.Clientes.getMaxColumns() >= amb.ctx.CAMPOS_CLIENTE.length);
+  for (let i = 0; i < 1100; i++) amb.ctx.registrarLog('teste', 'CARGA', '', String(i));
+  assert.ok(amb.ctx.lerTabela('Log', amb.ctx.CAMPOS_LOG).length > 1100);
+});

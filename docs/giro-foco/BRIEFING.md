@@ -73,6 +73,11 @@ Arquivos: `docs/giro-foco/codigo-atual/Codigo-apps-script.gs` (Apps Script) e `a
 - **Combinado com o usuário (19/11):** testar primeiro com **planilha nova e link novo**; depois de aprovado o
   visual, criar a planilha de teste, ligar o Apps Script e só então pensar na troca do site oficial.
 
+- **Planilha nova de teste (19/11):** "Giro foco oficial nuvem", ID `1Ct7gS41xwf8fKFGaOXciSRNCtGal3IrBXwYuGKHFfZQ`,
+  fuso America/Belem, abas criadas e formatadas pelo Claude (Clientes vazia). Próximo: o usuário cola o Apps Script,
+  cria a implantação e envia a URL `/exec`; então ligar `URL_NUVEM` no site e testar ao vivo.
+- O Apps Script aumenta as abas quando precisa (`garantirTamanho`): aba nova do Google nasce com 1000×26.
+
 ### 2.2 Formato da base colada pelo admin (planilha da empresa, copiada do Excel)
 
 23 colunas separadas por tabulação, com cabeçalho:

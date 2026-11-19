@@ -16,15 +16,29 @@ function autoConverter(v) {
 }
 
 class Aba {
-  constructor(nome) { this.nome = nome; this.celulas = []; this.formatos = []; }
+  // Igual ao Google: aba nova nasce com 1000 linhas x 26 colunas, e gravar fora disso dá erro.
+  constructor(nome) { this.nome = nome; this.celulas = []; this.formatos = []; this.maxLinhas = 1000; this.maxColunas = 26; }
+  getMaxRows() { return this.maxLinhas; }
+  getMaxColumns() { return this.maxColunas; }
+  insertRowsAfter(_depois, n) { this.maxLinhas += n; }
+  insertColumnsAfter(_depois, n) { this.maxColunas += n; }
   getLastRow() {
     for (let r = this.celulas.length - 1; r >= 0; r--) {
       if ((this.celulas[r] || []).some(v => v !== '' && v !== undefined && v !== null)) return r + 1;
     }
     return 0;
   }
-  getRange(linha, coluna, nLinhas = 1, nColunas = 1) { return new Intervalo(this, linha, coluna, nLinhas, nColunas); }
-  appendRow(valores) { this.getRange(this.getLastRow() + 1, 1, 1, valores.length).setValues([valores]); }
+  getRange(linha, coluna, nLinhas = 1, nColunas = 1) {
+    if (linha + nLinhas - 1 > this.maxLinhas || coluna + nColunas - 1 > this.maxColunas) {
+      throw new Error(`Exception: The coordinates of the range are outside the dimensions of the sheet. (${this.nome} ${this.maxLinhas}x${this.maxColunas})`);
+    }
+    return new Intervalo(this, linha, coluna, nLinhas, nColunas);
+  }
+  appendRow(valores) {
+    if (this.getLastRow() + 1 > this.maxLinhas) this.maxLinhas++;
+    this.maxColunas = Math.max(this.maxColunas, valores.length);
+    this.getRange(this.getLastRow() + 1, 1, 1, valores.length).setValues([valores]);
+  }
   setFrozenRows() {}
 }
 
