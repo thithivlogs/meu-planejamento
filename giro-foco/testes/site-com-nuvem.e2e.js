@@ -119,7 +119,36 @@ async function informarPrimeiraVenda(p, caixas) {
     await D.pagina.waitForSelector('.cli');
     ok('admin trocou para "número + 01": 15631 foi recusada e 1563101 entrou');
 
-    // 5. Nada sensível chegou a nenhum aparelho que não fosse o admin
+    // 5. Admin cola a base no formato exato da planilha da empresa (copiada do Excel, separada por tabulação)
+    const cab = ['Mês', 'Regional', 'ID Centro', 'ID Organização de vendas', 'Operação', 'Status Giro', 'Matriz Potencial', 'ID Cliente',
+      'Cliente', 'CNPJ/CPF', 'ID Grupo de clientes', 'Grupo de clientes', 'Categoria de Cliente', 'Supervisor Vendas', 'Desc. Sup. Vendas',
+      'Setor de Vendas', 'Desc. Setor de Vendas', 'Ativos em Campo', 'Real HL', 'Meta HL', 'Retorno %', 'UNIR', 'EXPURGADO'];
+    const base = clientesFicticios();
+    const linhaExcel = c => ['Nov', 'DIR REG NORDESTE N', '0026', '5087', 'CDA BENEVIDES', c.idCliente === base[0].idCliente ? 'GIRO EFICIENTE' : c.statusGiro,
+      'BRONZE', c.idCliente, c.cliente, '000005' + c.cnpj.slice(0, 11), 'B4', 'Armazém/Mercearia', 'Tradicional', c.supId, c.supNome,
+      c.setorId, c.vendedorNome, String(c.ativos), String(c.realHL).replace('.', ','), '1,2', '15%', '', c.expurgado].join('\t');
+    const colagem = [cab.join('\t'), ...base.map(linhaExcel)].join('\r\n');
+    await ADM.pagina.fill('#colarBase', colagem);
+    await ADM.pagina.waitForFunction(n => (document.querySelector('.previa') || {}).textContent?.includes(n + ' clientes lidos'), base.length);
+    await ADM.pagina.click('[data-publicar]');
+    await ADM.pagina.waitForFunction(() => /Base publicada/.test(document.querySelector('#avisos').textContent));
+    planilha = amb.ctx.lerClientes();
+    const c0 = planilha.find(c => c.idCliente === base[0].idCliente);
+    assert.equal(planilha.length, base.length);
+    assert.equal(c0.statusGiro, 'GIRO EFICIENTE');
+    assert.equal(c0.idCentro, '0026');
+    assert.equal(c0.cnpj, '000005' + base[0].cnpj.slice(0, 11));
+    assert.equal(c0.metaHL, 1.2);
+    assert.equal(c0.grupo, 'Armazém/Mercearia');
+    assert.equal(c0.categoria, 'Tradicional');
+    assert.equal(c0.supNome, base[0].supNome);
+    assert.equal(c0.vendedorNome, base[0].vendedorNome);
+    assert.equal(c0.retornoPct, 15);
+    assert.equal(planilha.find(c => c.idCliente === idA).vendaCaixas, 7, 'venda informada se perdeu na importação');
+    assert.equal(planilha.filter(c => c.expurgado === 'SIM').length, base.filter(c => c.expurgado === 'SIM').length);
+    ok(`colagem no formato da planilha da empresa (23 colunas, vírgula decimal, %, zeros à esquerda): ${base.length} clientes importados e a venda do vendedor A preservada`);
+
+    // 6. Nada sensível chegou a nenhum aparelho que não fosse o admin
     for (const ap of [A, B, C, S, D]) {
       assert.ok(!ap.respostas.some(r => r.includes(SENHA_ADMIN_TESTE)), 'senha de admin vazou');
       assert.ok(!(await ap.pagina.content()).includes(SENHA_ADMIN_TESTE));

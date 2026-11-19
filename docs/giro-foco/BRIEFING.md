@@ -73,6 +73,16 @@ Arquivos: `docs/giro-foco/codigo-atual/Codigo-apps-script.gs` (Apps Script) e `a
 - **Combinado com o usuário (19/11):** testar primeiro com **planilha nova e link novo**; depois de aprovado o
   visual, criar a planilha de teste, ligar o Apps Script e só então pensar na troca do site oficial.
 
+### 2.2 Formato da base colada pelo admin (planilha da empresa, copiada do Excel)
+
+23 colunas separadas por tabulação, com cabeçalho:
+`Mês | Regional | ID Centro | ID Organização de vendas | Operação | Status Giro | Matriz Potencial | ID Cliente | Cliente |
+CNPJ/CPF | ID Grupo de clientes | Grupo de clientes | Categoria de Cliente | Supervisor Vendas | Desc. Sup. Vendas |
+Setor de Vendas | Desc. Setor de Vendas | Ativos em Campo | Real HL | Meta HL | Retorno % | UNIR | EXPURGADO`.
+Valores: vírgula decimal (`0,31`), `Retorno %` como `15%`, `ID Centro` `0026` e CNPJ com zeros à esquerda (texto),
+`EXPURGADO` `SIM`/`NAO`, `Supervisor Vendas` = mesa (ex.: 31473), `Setor de Vendas` = setor (ex.: 15666).
+Coberto pelo teste de ponta a ponta (`site-com-nuvem.e2e.js`, passo 5). O cabeçalho é lido pelo nome, então a ordem pode mudar.
+
 ## 3. Acesso (sem login de plataforma)
 
 - Entrada simples, sem conta Google nem cadastro: a pessoa escolhe o perfil e digita o código.
