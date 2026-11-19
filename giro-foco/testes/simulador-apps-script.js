@@ -79,7 +79,7 @@ class Intervalo {
   setFontWeight() { return this; }
 }
 
-function criarAmbiente({ propriedades = {} } = {}) {
+function criarAmbiente({ propriedades = {}, arquivosHtml = {} } = {}) {
   const abas = {};
   const props = Object.assign({}, propriedades);
   const cache = {};
@@ -120,6 +120,21 @@ function criarAmbiente({ propriedades = {} } = {}) {
       },
     },
     Logger: { log: () => {} },
+    HtmlService: {
+      XFrameOptionsMode: { ALLOWALL: 'ALLOWALL' },
+      createHtmlOutputFromFile: nome => {
+        if (!(nome in arquivosHtml)) throw new Error('No HTML file named ' + nome + ' was found.');
+        return { getContent: () => arquivosHtml[nome] };
+      },
+      createHtmlOutput: html => {
+        const saida = { html, meta: {}, titulo: '', modo: '' };
+        saida.setTitle = t => { saida.titulo = t; return saida; };
+        saida.addMetaTag = (k, v) => { saida.meta[k] = v; return saida; };
+        saida.setXFrameOptionsMode = m => { saida.modo = m; return saida; };
+        return saida;
+      },
+    },
+    ScriptApp: { getService: () => ({ getUrl: () => 'https://script.google.com/macros/s/TESTE/exec' }) },
     console,
     JSON, Math, Number, String, Boolean, Array, Object, Error, isNaN, parseInt, parseFloat,
   };
@@ -138,9 +153,10 @@ function criarAmbiente({ propriedades = {} } = {}) {
     return JSON.parse(r.texto);
   }
   function get(parametros = {}) { return JSON.parse(contexto.doGet({ parameter: parametros }).texto); }
+  function pagina(parametros = {}) { return contexto.doGet({ parameter: parametros }); }
 
   return {
-    ctx: contexto, abas, props, cache, post, get,
+    ctx: contexto, abas, props, cache, post, get, pagina,
     avancarRelogio: ms => { agoraFalso = (agoraFalso !== null ? agoraFalso : RealDate.now()) + ms; },
   };
 }

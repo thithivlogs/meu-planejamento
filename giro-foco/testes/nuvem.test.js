@@ -84,10 +84,11 @@ test('cada perfil recebe só a sua carteira e nunca a senha de admin', () => {
     assert.ok(!JSON.stringify(resp).includes(SENHA_ADMIN_TESTE), 'senha vazou na resposta');
     assert.equal(resp.config.adminPass, undefined);
   }
-  // GET sem acesso não devolve dados (antes devolvia tudo)
-  const g = amb.get();
-  assert.equal(g.ok, false);
+  // Abrir o link sem login não devolve dados (antes devolvia tudo, inclusive a senha)
+  const g = amb.pagina();
   assert.ok(!JSON.stringify(g).includes('Cliente Teste'));
+  assert.ok(!JSON.stringify(g).includes(SENHA_ADMIN_TESTE));
+  assert.equal(amb.get({ acao: 'qualquer' }).ok, false);
 });
 
 test('regras de senha: igual ao número, número + 01, palavra-chave e senha individual', () => {
@@ -300,3 +301,16 @@ test('planilha de versão anterior (36 colunas) ganha as colunas novas sem perde
   assert.equal(amb.ctx.lerClientes().length, antes);
 });
 function vm_reset(amb) { for (const k of Object.keys(amb.ctx.CABECALHO_CONFERIDO)) delete amb.ctx.CABECALHO_CONFERIDO[k]; }
+
+test('o link /exec abre o site em tela cheia, já ligado na própria nuvem', () => {
+  const site = require('fs').readFileSync(require('path').join(__dirname, '..', 'site', 'index.html'), 'utf8');
+  const amb = criarAmbiente({ arquivosHtml: { Site: site } });
+  const p = amb.pagina();
+  assert.ok(p.html.includes("window.GIRO_URL_NUVEM || 'https://script.google.com/macros/s/TESTE/exec'"));
+  assert.equal(p.meta.viewport, 'width=device-width, initial-scale=1, viewport-fit=cover');
+  assert.equal(p.modo, 'ALLOWALL');
+  assert.match(p.titulo, /Giro Foco/);
+  assert.equal(amb.get({ acao: 'ping' }).ok, true);
+  // Sem o arquivo "Site": mostra como resolver em vez de quebrar
+  assert.match(criarAmbiente().pagina().html, /Falta o arquivo HTML/);
+});

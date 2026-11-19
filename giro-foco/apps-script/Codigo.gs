@@ -14,11 +14,13 @@
  * A aba antiga "Nuvem_Giro" e o estado antigo (Propriedades do script) NÃO são apagados: ficam como backup.
  *
  * Primeiro uso: no editor do Apps Script, escolha a função "migrarDadosAntigos" e clique em Executar.
+ * O site em tela cheia fica no arquivo HTML "Site" deste projeto (Arquivo + → HTML → nome: Site).
  */
 
 // ============================== CONFIGURAÇÕES ==============================
 
-var VERSAO_API = '2.1.1';
+var VERSAO_API = '2.2.0';
+var ARQUIVO_DO_SITE = 'Site';             // nome do arquivo HTML com o site, dentro do Apps Script
 var CHAVE_ESTADO_ANTIGO = 'GIRO_CDA_CLOUD_STATE';
 var DIAS_VALIDADE_ACESSO = 30;          // por quantos dias o aparelho fica conectado
 var MAX_TENTATIVAS_ERRADAS = 8;         // tentativas de senha errada antes de bloquear por 10 minutos
@@ -106,9 +108,27 @@ var CONFIG_PUBLICA = ['calcMetricMode', 'boxFactorHL', 'lastUpdateLabel', 'lastU
 function doGet(e) {
   var acao = e && e.parameter && e.parameter.acao;
   if (acao === 'ping') return responder({ ok: true, versao: VERSAO_API });
-  // Compatibilidade: o site antigo fazia GET sem parâmetros esperando a base inteira.
-  // Não devolvemos mais nada sem acesso (antes vazava senha e dados de todos).
-  return responder({ ok: false, erro: 'Use o site atualizado do Giro Foco.' });
+  if (acao) return responder({ ok: false, erro: 'Use o site atualizado do Giro Foco.' });
+  // Sem "acao": abre o SITE em tela cheia (arquivo HTML "Site" deste projeto do Apps Script).
+  // Assim o mesmo link /exec serve no celular como um aplicativo e no botão do Google Sites.
+  return paginaDoSite();
+}
+
+function paginaDoSite() {
+  var html;
+  try {
+    html = HtmlService.createHtmlOutputFromFile(ARQUIVO_DO_SITE).getContent();
+  } catch (err) {
+    return HtmlService.createHtmlOutput('<p style="font:16px system-ui;padding:24px">Falta o arquivo HTML <b>' + ARQUIVO_DO_SITE +
+      '</b> no Apps Script (Arquivo + → HTML). Cole nele o código do site e implante uma nova versão.</p>');
+  }
+  // Liga o site nesta mesma implantação (se o código colado ainda não tiver a URL da nuvem).
+  var url = ScriptApp.getService().getUrl();
+  html = html.replace("window.GIRO_URL_NUVEM || ''", "window.GIRO_URL_NUVEM || '" + url + "'");
+  return HtmlService.createHtmlOutput(html)
+    .setTitle('Giro Foco · CDA Benevides')
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1, viewport-fit=cover')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
 function doPost(e) {
@@ -171,8 +191,10 @@ function executarAcao(corpo) {
   if (!trava.tryLock(25000)) throw erroUsuario('Servidor ocupado, tente de novo em alguns segundos.');
   try {
     var resultado = def.fn(corpo, sessao);
-    gravarConfig({ dataVersion: String(Date.now()) });
-    resultado.dataVersion = lerConfig().dataVersion;
+    // A versão sempre aumenta (mesmo com duas gravações no mesmo milissegundo).
+    var nova = String(Math.max(Date.now(), (Number(lerConfig().dataVersion) || 0) + 1));
+    gravarConfig({ dataVersion: nova });
+    resultado.dataVersion = nova;
     return resultado;
   } finally {
     trava.releaseLock();

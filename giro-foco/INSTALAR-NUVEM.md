@@ -16,15 +16,22 @@ quando o admin cola a planilha da empresa no site. **Não precisa rodar a migra�
 Para atualizar o código depois: cole o código novo, salve e use **Implantar → Gerenciar implantações → lápis →
 Versão: Nova versão → Implantar**. Assim a URL `/exec` continua a mesma.
 
-### Colocar o site no Google Sites (link novo, para teste)
+### Colocar o site em tela cheia (recomendado) e o botão no Google Sites
 
-1. Gere o arquivo do site ligado na nuvem (o Claude já gerou para a URL atual):
-   `node giro-foco/site/gerar-versao-google-sites.js <URL /exec>` → `giro-foco/site/versao-google-sites.html`.
-2. Abra o Google Sites e crie um **site novo** (ou uma página nova) para o teste.
-3. **Inserir → Incorporar → aba "Incorporar código"**, cole **todo** o conteúdo de `versao-google-sites.html` → **Avançar → Inserir**.
-4. Arraste as bordas do bloco para ocupar **a largura toda** e deixe-o **bem alto** (o site rola por dentro do bloco).
-5. **Publicar** → escolha o endereço → confira em *Gerenciar acesso* que qualquer pessoa com o link pode ver.
-6. Abra no celular, entre como **Admin** e cole a base do dia (Admin → Atualizar a base do dia → Publicar base).
+O bloco "Incorporar" do Google Sites tem altura fixa e encolhe no celular. Por isso o site abre pelo
+próprio link do Apps Script (`/exec`), em tela cheia, e o Google Sites só tem um botão que leva até ele.
+
+1. No Apps Script da planilha: **Arquivo (+) → HTML**, nome **`Site`** (exatamente assim).
+2. Apague o conteúdo do arquivo `Site.html` e cole **todo** o código do site
+   (link em texto puro: `giro-foco/site/versao-google-sites.html` no GitHub, Ctrl+A, Ctrl+C). Salve.
+3. Cole também o `Código.gs` mais novo (versão 2.2.0 ou maior). Salve.
+4. **Implantar → Gerenciar implantações → lápis → Versão: Nova versão → Implantar.** A URL `/exec` não muda.
+5. Abra a URL `/exec` no celular: o site abre em tela cheia. No Chrome: menu ⋮ → **Adicionar à tela inicial**.
+6. No Google Sites: apague o bloco incorporado, use **Inserir → Botão**, nome **Abrir Giro Foco**,
+   link = a URL `/exec`. Publique.
+
+(Contas pessoais do Google mostram uma faixa cinza no topo: "Este aplicativo foi criado por um usuário do
+Google Apps Script". É normal e não atrapalha.)
 
 ### Atualizar o Apps Script sem mudar a URL
 

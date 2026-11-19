@@ -82,6 +82,9 @@ Arquivos: `docs/giro-foco/codigo-atual/Codigo-apps-script.gs` (Apps Script) e `a
   Testado ao vivo com 3 clientes fictícios (setor 99901 / mesa 99900): entrar, importar, informar venda com embalagem,
   supervisor, atualização leve; depois os dados de teste foram apagados. Cada chamada leva 2–7 s (normal do Apps Script).
   Node no ambiente precisa de `NODE_USE_ENV_PROXY=1 NODE_EXTRA_CA_CERTS=/root/.ccr/ca-bundle.crt` para chamar a URL.
+- **Tela cheia (20/11):** o bloco "Incorporar" do Google Sites encolhe no celular (mantém a proporção), então o site
+  passou a ser servido pelo próprio Apps Script: `doGet` sem `acao` devolve o arquivo HTML **`Site`** do projeto
+  (HtmlService, viewport, ALLOWALL) e injeta a URL `/exec`. No Google Sites fica só um **Botão** nativo para o `/exec`.
 - **Site para o Google Sites:** `giro-foco/site/versao-google-sites.html`, gerado por `gerar-versao-google-sites.js <URL>`.
 - **Embalagens (pedido do usuário, 19/11):** aba `Embalagens` (nome, ml, unidades, ativa; padrão 330ml c/12, 330ml c/24,
   600ml c/12, 600ml c/24). HL do pacote = ml × unidades ÷ 100.000. Venda guarda `vendaEmbalagem` + `vendaHL` (colunas
