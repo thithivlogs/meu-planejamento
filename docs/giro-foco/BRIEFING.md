@@ -16,6 +16,31 @@ Objetivo: **refazer a aparência e a experiência do site Giro Foco** (CDA Benev
   expurgado, monthStartStatus, monthStartHL, prevStatus, prevHL, vendaInformada, vendaCaixas, vendaObs,
   vendaAutor, vendaData, saidaConfirmada`.
 
+## 1.1 Diagnóstico do código atual (19/11/2026)
+
+Arquivos: `docs/giro-foco/codigo-atual/Codigo-apps-script.gs` (Apps Script) e `app-original.js` (JS do site, sem dados/senha).
+
+- O site é um HTML único (~5 MB, Tailwind CDN + Chart.js + Lucide) gerado no Google AI Studio/Gemini, colado
+  num bloco "Incorporar" do Google Sites. Abas: `carteira`, `amarelos` (previsão de saída), `periodo` (evolução/projeção),
+  `graficos` (gráficos e mesas) e área admin (colar planilha, senhas, nuvem).
+- **Publicação atual:** o admin usa "exportar HTML pré-compilado" (`buildPrecompiledHTMLString`), que embute
+  `EMBEDDED_DEFAULT_STATE` com **senha de admin + todos os clientes (nomes, CNPJ)** e cola no Sites → qualquer pessoa
+  com o link vê a senha e os dados no código-fonte. A página publicada também traz os cartões já renderizados.
+- **Nuvem real:** o estado inteiro fica em `PropertiesService` (chave `GIRO_CDA_CLOUD_STATE`), ~458 KB — perto do
+  limite total de 500 KB do armazenamento de propriedades. A aba `Nuvem_Giro` é só um backup cortado em 45.000 caracteres.
+- `doGet` devolve tudo (inclusive senha) para quem tiver a URL `/exec`; `doPost` aceita sobrescrever tudo sem autenticação.
+- **Perda de lançamentos:** cada ação (ex.: `confirmInformSale`) envia o estado **inteiro** do aparelho (`saveState` →
+  `pushStateToGoogleCloud`). O app só lê a nuvem ao abrir ou no botão manual. Dois usuários com a página aberta
+  sobrescrevem o trabalho um do outro (o último a salvar vence).
+- O envio usa `mode: "no-cors"`: o site mostra "Nuvem Sincronizada ✓" mesmo se o Apps Script falhar.
+- Senhas são verificadas no navegador (`confirmRoleEntry`): vendedor = setor, supervisor = mesa (modos `SAME_AS_*`
+  ou palavra-chave). Todos os dados de todas as mesas são baixados para qualquer aparelho.
+- Dados de 18/11/2026: 643 clientes (587 válidos, 56 expurgos `expurgado: "SIM"/"NAO"`), 7 mesas, 29 setores,
+  `statusGiro`: GIRO EFICIENTE / BAIXO DESEMPENHO / GIRO ZERO. Mesa de teste: 31470 (setores 15619, 15623, 15627, 16906).
+- Celular: o cabeçalho verde ocupa a primeira tela inteira; as abas ficam cortadas na horizontal; textos pequenos.
+- Para testar localmente sem escrever na nuvem: servir o HTML, trocar CDNs por cópias do npm e **abortar todo
+  request que não seja GET** (o ambiente bloqueia `*-atari-embeds.googleusercontent.com`, cujo número muda a cada carga).
+
 ## 2. Problema crítico a resolver primeiro: salvamento na nuvem
 
 - O JSON inteiro vai numa célula só e é **cortado em 45.000 caracteres** (limite da célula é 50.000).
@@ -26,6 +51,9 @@ Objetivo: **refazer a aparência e a experiência do site Giro Foco** (CDA Benev
   quando a base for reimportada: mesclar por `idCliente` + `mes`.
 - Migrar sem perder nada do que já existe; manter a planilha **a mesma** (só adicionar abas).
 - Testar: salvar → recarregar → conferir que todos os clientes voltaram.
+- Cada ação grava **só o que mudou** (ex.: venda de um cliente), nunca o estado inteiro; o servidor mescla.
+- Confirmar o resultado do salvamento (sem `no-cors`) e avisar de verdade quando falhar; atualizar a tela periodicamente.
+- Tirar senha e dados do HTML publicado; o site busca os dados no Apps Script depois do acesso, e só os da mesa/setor.
 
 ## 3. Acesso (sem login de plataforma)
 
